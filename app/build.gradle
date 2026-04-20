@@ -4,7 +4,7 @@ id 'com.android.application'
 }
 
 android {
-namespace "com.fakelauncher"
+namespace "fake.launcher"
 compileSdk 29
 
 lint {
@@ -12,7 +12,7 @@ lint {
     }
 
 defaultConfig {  
-    applicationId "com.fakelauncher"  
+    applicationId "fake.launcher"  
     minSdk 29
     targetSdk 36
     versionCode 1
