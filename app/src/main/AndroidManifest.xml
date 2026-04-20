@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.fakelauncher">
+    package="fake.launcher">
 	
     <uses-permission android:name="android.permission.INTERNET"/>	
 		
@@ -27,6 +27,7 @@
 		<activity
 			android:showWhenLocked="true"
 			android:turnScreenOn="true"
+			android:excludeFromRecents="true"
 			android:directBootAware="true"
             android:name=".LauncherActivity"
             android:exported="true">
@@ -40,6 +41,7 @@
 			android:showWhenLocked="true"
 			android:turnScreenOn="true"
 			android:directBootAware="true"
+			android:excludeFromRecents="true"
             android:name=".CompassActivity"
             android:exported="true">
         </activity>
@@ -48,6 +50,7 @@
 			android:showWhenLocked="true"
 			android:turnScreenOn="true"
 			android:directBootAware="true"
+			android:excludeFromRecents="true"
             android:name=".GalleryActivity"
             android:exported="true">
         </activity>
@@ -55,6 +58,7 @@
         <activity
 			android:showWhenLocked="true"
 			android:turnScreenOn="true"
+			android:excludeFromRecents="true"
 			android:directBootAware="true"
             android:name=".BrowserActivity"
             android:exported="true">
@@ -63,6 +67,7 @@
 		<activity
 			android:showWhenLocked="true"
 			android:turnScreenOn="true"
+			android:excludeFromRecents="true"
 			android:directBootAware="true"
             android:name=".ClockActivity"
             android:exported="true">
@@ -72,6 +77,7 @@
 			android:showWhenLocked="true"
 			android:turnScreenOn="true"
 			android:directBootAware="true"
+			android:excludeFromRecents="true"
             android:name=".FakeSmsActivity"
             android:exported="true">
         </activity>
@@ -79,6 +85,7 @@
         <activity
 			android:showWhenLocked="true"
 			android:turnScreenOn="true"
+			android:excludeFromRecents="true"
 			android:directBootAware="true"
             android:name=".PhoneActivity"
             android:exported="true">
