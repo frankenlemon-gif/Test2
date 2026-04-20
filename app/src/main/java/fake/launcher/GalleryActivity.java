@@ -1,4 +1,4 @@
-package com.fakelauncher;
+package fake.launcher;
 
 import android.app.*;
 import android.content.*;
