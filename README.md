@@ -4,7 +4,7 @@
 
 Требуется разрешение Device Admin для отслежвания неверных попыток ввода пароля.
 
-Внимание! Это может не работать на некоторых прошивках. Проверяйте.
+Внимание! Это может не работать на некоторых прошивках. Проверяйте это на вашем устройстве.
 
 This is an app for launching a fake home screen after an incorrect lock screen password is entered, so an outsider thinks this is your real data (but there are none).
 
@@ -12,4 +12,4 @@ You can use this app when someone is trying to duress you into showing the conte
 
 Required Device Admin permission to watch for password failed attempts.
 
-Attention! It may not work on some firmware. Check.
+Attention! It may not work on some OEMs. Check it on your device.
