@@ -1,4 +1,4 @@
-package com.fakelauncher;
+package fake.launcher;
 
 import android.app.Activity;
 import android.content.Context;
