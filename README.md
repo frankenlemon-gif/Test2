@@ -1,9 +1,3 @@
-Данный репозиторий создан для сборки кода, отдельно от отладочного репозитория /FakeLauncher.
-
-This repository is created for building code, separately from the debug repository /FakeLauncher.
-
-Сокращённое описание приложения (Brief description of the application):
-
 Это приложение для запуска фейкового главного экрана при вводе неверного пароля на экране блокировки, чтобы посторонний думал, что это и есть ваши данные (но там их нет).
 
 Вы можете использовать это приложение когда вас заставляют показать содержимое телефона. В таком случае просто вводите неправильный пароль и приложение покажет 'пустышку'.
@@ -15,7 +9,3 @@ This is an app for launching a fake home screen after an incorrect lock screen p
 You can use this app when someone is trying to duress you into showing the contents of your phone. In this situation you just enter the wrong password and app show a decoy.
 
 Required Device Admin permission to watch for password failed attempts.
-
-Я хочу опубликовать это приложение на F-droid. Если вы читаете это, помогите мне это сделать.
-
-I want to publish this app on F-droid. If you're reading this, please help me to do it.
