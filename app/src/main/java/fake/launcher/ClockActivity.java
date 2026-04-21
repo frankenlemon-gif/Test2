@@ -207,7 +207,7 @@ public class ClockActivity extends Activity {
 				public void onClick(View v) {
 					try {
 						Intent intent = new Intent(ClockActivity.this, 
-												   Class.forName("com.fakelauncher.LauncherActivity"));
+												   Class.forName("fake.launcher.LauncherActivity"));
 						startActivity(intent);
 					} catch (ClassNotFoundException e) {
 						Toast.makeText(ClockActivity.this, 
@@ -223,7 +223,7 @@ public class ClockActivity extends Activity {
 				public void onClick(View v) {
 					try {
 						Intent intent = new Intent(ClockActivity.this, 
-												   Class.forName("com.fakelauncher.LauncherActivity"));
+												   Class.forName("fake.launcher.LauncherActivity"));
 						startActivity(intent);
 					} catch (ClassNotFoundException e) {
 						Toast.makeText(ClockActivity.this, 
