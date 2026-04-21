@@ -375,15 +375,10 @@ public class PhoneActivity extends Activity {
     }
 
     private void openLauncherActivity() {
-        try {
-            Intent intent = new Intent(PhoneActivity.this,
-									   Class.forName("fake.launcher.LauncherActivity"));
+        
+            Intent intent = new Intent(PhoneActivity.this, LauncherActivity.class);
             startActivity(intent);
-        } catch (ClassNotFoundException e) {
-            Toast.makeText(PhoneActivity.this,
-						   isRussian ? "LauncherActivity не найден" : "LauncherActivity not found",
-						   Toast.LENGTH_SHORT).show();
-        }
+        
     }
 
     private Button createNavButton(String text) {
