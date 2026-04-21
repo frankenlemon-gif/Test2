@@ -41,7 +41,7 @@
 			android:directBootAware="true"
 			android:excludeFromRecents="true"
             android:name=".CompassActivity"
-            android:exported="true">
+            android:exported="false">
         </activity>
 		
 		<activity
@@ -50,7 +50,7 @@
 			android:directBootAware="true"
 			android:excludeFromRecents="true"
             android:name=".GalleryActivity"
-            android:exported="true">
+            android:exported="false">
         </activity>
 		
         <activity
@@ -59,7 +59,7 @@
 			android:excludeFromRecents="true"
 			android:directBootAware="true"
             android:name=".BrowserActivity"
-            android:exported="true">
+            android:exported="false">
         </activity>
 
 		<activity
@@ -68,7 +68,7 @@
 			android:excludeFromRecents="true"
 			android:directBootAware="true"
             android:name=".ClockActivity"
-            android:exported="true">
+            android:exported="false">
         </activity>
 		
 		<activity
@@ -77,7 +77,7 @@
 			android:directBootAware="true"
 			android:excludeFromRecents="true"
             android:name=".FakeSmsActivity"
-            android:exported="true">
+            android:exported="false">
         </activity>
 		
         <activity
@@ -86,7 +86,7 @@
 			android:excludeFromRecents="true"
 			android:directBootAware="true"
             android:name=".PhoneActivity"
-            android:exported="true">
+            android:exported="false">
         </activity>
 
     </application>
