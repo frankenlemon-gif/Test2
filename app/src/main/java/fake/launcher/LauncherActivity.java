@@ -51,37 +51,11 @@ public class LauncherActivity extends Activity {
 		if (negativeButton != null) {
 			negativeButton.setTypeface(Typeface.DEFAULT);
 		}
-	}
-	
-	private boolean isInBFUState() {
-		try {
-			
-			if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
-				UserManager userManager = (UserManager) getSystemService(Context.USER_SERVICE);
-				if (userManager != null) {		
-					return !userManager.isUserUnlocked();
-				}
-			}
-	
-			KeyguardManager keyguardManager = (KeyguardManager) getSystemService(Context.KEYGUARD_SERVICE);
-			if (keyguardManager != null) {	
-				boolean isDeviceLocked = keyguardManager.isDeviceLocked();
-				boolean isKeyguardLocked = keyguardManager.isKeyguardLocked();
-				return isDeviceLocked && isKeyguardLocked;
-			}
-
-			return false;
-		} catch (Exception e) {
-			e.printStackTrace();
-			return false;
-		}
-	}
+	}	
 	
     @Override
     protected void onResume() {
-        super.onResume();
-
-		
+        super.onResume();		
 		
         getWindow().getDecorView().setSystemUiVisibility(
 			View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
@@ -174,21 +148,8 @@ public class LauncherActivity extends Activity {
 		mainLayout.setPadding(padding, padding, padding, padding + navBarHeight);
 
 		String[] icons;
-		Class<?>[] activities;
-
+		Class<?>[] activities;		
 		
-		if (!isInBFUState()) {
-			icons = new String[]{"🌍", "📞", "💬", "🕗", "🖼️", "🧭", "📷"};
-			activities = new Class<?>[]{
-				BrowserActivity.class,
-				PhoneActivity.class,
-				FakeSmsActivity.class,
-				ClockActivity.class,
-				GalleryActivity.class,
-				CompassActivity.class,
-				null
-			};
-		} else {
 			icons = new String[]{"📞", "💬", "🕗", "🖼️", "🧭", "📷"};
 			activities = new Class<?>[]{
 				PhoneActivity.class,
@@ -197,8 +158,7 @@ public class LauncherActivity extends Activity {
 				GalleryActivity.class,
 				CompassActivity.class,
 				null
-			};
-		}
+			};		
 		
 		for (int i = 0; i < icons.length; i += iconsPerRow) {
 			LinearLayout row = new LinearLayout(this);
