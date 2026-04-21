@@ -377,7 +377,7 @@ public class PhoneActivity extends Activity {
     private void openLauncherActivity() {
         try {
             Intent intent = new Intent(PhoneActivity.this,
-									   Class.forName("com.fakelauncher.LauncherActivity"));
+									   Class.forName("fake.launcher.LauncherActivity"));
             startActivity(intent);
         } catch (ClassNotFoundException e) {
             Toast.makeText(PhoneActivity.this,
