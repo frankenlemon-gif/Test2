@@ -594,15 +594,11 @@ public class FakeSmsActivity extends Activity {
         backButton.setOnClickListener(new View.OnClickListener() {
 				@Override
 				public void onClick(View v) {
-					try {
+					
 						Intent intent = new Intent(FakeSmsActivity.this, 
-												   Class.forName("com.fakelauncher.LauncherActivity"));
+												   LauncherActivity.class);
 						startActivity(intent);
-					} catch (ClassNotFoundException e) {
-						Toast.makeText(FakeSmsActivity.this, 
-									   isRussian ? "LauncherActivity не найден" : "LauncherActivity not found", 
-									   Toast.LENGTH_SHORT).show();
-					}
+				
 				}
 			});
 
@@ -610,15 +606,11 @@ public class FakeSmsActivity extends Activity {
         homeButton.setOnClickListener(new View.OnClickListener() {
 				@Override
 				public void onClick(View v) {
-					try {
+					
 						Intent intent = new Intent(FakeSmsActivity.this, 
-												   Class.forName("com.fakelauncher.LauncherActivity"));
+												   LauncherActivity.class);
 						startActivity(intent);
-					} catch (ClassNotFoundException e) {
-						Toast.makeText(FakeSmsActivity.this, 
-									   isRussian ? "LauncherActivity не найден" : "LauncherActivity not found", 
-									   Toast.LENGTH_SHORT).show();
-					}
+			
 				}
 			});
 
