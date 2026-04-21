@@ -200,15 +200,11 @@ public class CompassActivity extends Activity implements SensorEventListener {
         backButton.setOnClickListener(new View.OnClickListener() {
 				@Override
 				public void onClick(View v) {
-					try {
+					
 						Intent intent = new Intent(CompassActivity.this, 
-												   Class.forName("com.fakelauncher.LauncherActivity"));
+												   LauncherActivity.class);
 						startActivity(intent);
-					} catch (ClassNotFoundException e) {
-						Toast.makeText(CompassActivity.this, 
-									   isRussian ? "LauncherActivity не найден" : "LauncherActivity not found", 
-									   Toast.LENGTH_SHORT).show();
-					}
+				
 				}
 			});
 
@@ -216,15 +212,11 @@ public class CompassActivity extends Activity implements SensorEventListener {
         homeButton.setOnClickListener(new View.OnClickListener() {
 				@Override
 				public void onClick(View v) {
-					try {
+					
 						Intent intent = new Intent(CompassActivity.this, 
-												   Class.forName("com.fakelauncher.LauncherActivity"));
+												   LauncherActivity.class);
 						startActivity(intent);
-					} catch (ClassNotFoundException e) {
-						Toast.makeText(CompassActivity.this, 
-									   isRussian ? "LauncherActivity не найден" : "LauncherActivity not found", 
-									   Toast.LENGTH_SHORT).show();
-					}
+				
 				}
 			});
 
