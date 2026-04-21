@@ -53,15 +53,6 @@
             android:exported="false">
         </activity>
 		
-        <activity
-			android:showWhenLocked="true"
-			android:turnScreenOn="true"
-			android:excludeFromRecents="true"
-			android:directBootAware="true"
-            android:name=".BrowserActivity"
-            android:exported="false">
-        </activity>
-
 		<activity
 			android:showWhenLocked="true"
 			android:turnScreenOn="true"
