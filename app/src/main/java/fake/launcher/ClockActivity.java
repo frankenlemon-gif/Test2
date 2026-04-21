@@ -176,7 +176,6 @@ public class ClockActivity extends Activity {
 
         timeTextView.setText(timeString+"\n\n\n\n");
     }
-
     
 
     private void addNavigationBar() {
@@ -204,32 +203,18 @@ public class ClockActivity extends Activity {
         Button backButton = createNavButton("<");
         backButton.setOnClickListener(new View.OnClickListener() {
 				@Override
-				public void onClick(View v) {
-					try {
-						Intent intent = new Intent(ClockActivity.this, 
-												   Class.forName("fake.launcher.LauncherActivity"));
-						startActivity(intent);
-					} catch (ClassNotFoundException e) {
-						Toast.makeText(ClockActivity.this, 
-									   isRussian ? "LauncherActivity не найден" : "LauncherActivity not found", 
-									   Toast.LENGTH_SHORT).show();
-					}
+				public void onClick(View v) {					
+						Intent intent = new Intent(ClockActivity.this, LauncherActivity.class);
+						startActivity(intent);			
 				}
 			});
 
         Button homeButton = createNavButton("□");
         homeButton.setOnClickListener(new View.OnClickListener() {
 				@Override
-				public void onClick(View v) {
-					try {
-						Intent intent = new Intent(ClockActivity.this, 
-												   Class.forName("fake.launcher.LauncherActivity"));
-						startActivity(intent);
-					} catch (ClassNotFoundException e) {
-						Toast.makeText(ClockActivity.this, 
-									   isRussian ? "LauncherActivity не найден" : "LauncherActivity not found", 
-									   Toast.LENGTH_SHORT).show();
-					}
+				public void onClick(View v) {					
+						Intent intent = new Intent(ClockActivity.this, LauncherActivity.class);
+						startActivity(intent);				
 				}
 			});
 
