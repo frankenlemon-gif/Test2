@@ -193,15 +193,11 @@ public class GalleryActivity extends Activity {
         backButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    try {
+                    
                         Intent intent = new Intent(GalleryActivity.this, 
-                                                   Class.forName("com.fakelauncher.LauncherActivity"));
+                                                   LauncherActivity.class);
                         startActivity(intent);
-                    } catch (ClassNotFoundException e) {
-                        Toast.makeText(GalleryActivity.this, 
-                                       "LauncherActivity not found", 
-                                       Toast.LENGTH_SHORT).show();
-                    }
+                    
                 }
             });
 
@@ -209,15 +205,11 @@ public class GalleryActivity extends Activity {
         homeButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    try {
+                    
                         Intent intent = new Intent(GalleryActivity.this, 
-                                                   Class.forName("com.fakelauncher.LauncherActivity"));
+                                                   LauncherActivity.class);
                         startActivity(intent);
-                    } catch (ClassNotFoundException e) {
-                        Toast.makeText(GalleryActivity.this, 
-                                       "LauncherActivity not found", 
-                                       Toast.LENGTH_SHORT).show();
-                    }
+                    
                 }
             });
 
