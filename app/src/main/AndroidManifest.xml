@@ -3,8 +3,8 @@
 
     <application
         android:label="FakeLauncher"
-		android:theme="@android:style/Theme.DeviceDefault.Light.NoActionBar.Fullscreen"
-        android:icon="@drawable/ic_launcher">
+		android:theme="@android:style/Theme.Translucent.NoTitleBar.Fullscreen"
+		android:icon="@drawable/ic_launcher">
 
 		<receiver		
 			android:directBootAware="true"
