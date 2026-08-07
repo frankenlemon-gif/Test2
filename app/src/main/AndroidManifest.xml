@@ -23,15 +23,19 @@
         </receiver>
 		
 		<activity
-			android:showWhenLocked="true"
-			android:turnScreenOn="true"
-			android:excludeFromRecents="true"
-			android:directBootAware="true"
             android:name=".LauncherActivity"
-            android:exported="true">
+			android:showWhenLocked="true"
+			android:excludeFromRecents="true"
+            android:label="SandboxLauncher"
+            android:exported="true"
+            android:launchMode="singleTask"
+            android:clearTaskOnLaunch="true"
+            android:taskAffinity="">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
-                <category android:name="android.intent.category.LAUNCHER"/>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.HOME" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 		
