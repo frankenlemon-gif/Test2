@@ -1,7 +1,6 @@
 package fake.launcher;
 
 import android.app.Activity;
-import android.app.KeyguardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -40,11 +39,6 @@ public class LauncherActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        KeyguardManager km = (KeyguardManager) getSystemService(Context.KEYGUARD_SERVICE);
-        if (km != null && km.isKeyguardLocked()) {
-            return;
-        }
-
         launcherApps = (LauncherApps) getSystemService(Context.LAUNCHER_APPS_SERVICE);
         
         FrameLayout root = new FrameLayout(this);
@@ -63,7 +57,7 @@ public class LauncherActivity extends Activity {
         float density = getResources().getDisplayMetrics().density;
         int finalPadding = (int) (44 * density);
         gridView.setPadding(0, finalPadding, 0, finalPadding);
-        gridView.setClipToPadding(false);
+		gridView.setClipToPadding(false);
 
         gridView.setOnItemClickListener((parent, view, position, id) -> {
             LauncherActivityInfo info = apps.get(position);
@@ -142,51 +136,19 @@ public class LauncherActivity extends Activity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (launcherApps != null && callback != null) {
-            launcherApps.unregisterCallback(callback);
-        }
+        launcherApps.unregisterCallback(callback);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        
-        KeyguardManager km = (KeyguardManager) getSystemService(Context.KEYGUARD_SERVICE);
-        if (km != null && km.isKeyguardLocked()) {
-            View swipeView = new View(this);
-            swipeView.setBackgroundColor(Color.TRANSPARENT);
-            swipeView.setOnTouchListener(new View.OnTouchListener() {
-                float startY;
-                @Override
-                public boolean onTouch(View v, MotionEvent event) {
-                    if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                        startY = event.getY();
-                        return true;
-                    } else if (event.getAction() == MotionEvent.ACTION_UP) {
-                        if (startY - event.getY() > 150) {
-                            km.requestDismissKeyguard(LauncherActivity.this, null);
-                        }
-                        return true;
-                    }
-                    return false;
-                }
-            });
-            setContentView(swipeView);
-            return;
-        }
-
-        if (launcherApps == null) {
-            recreate();
-            return;
-        }
-
         getWindow().getDecorView().setSystemUiVisibility(
-            View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-            | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-            | View.SYSTEM_UI_FLAG_FULLSCREEN
-            | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-            | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-            | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+			View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+			| View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+			| View.SYSTEM_UI_FLAG_FULLSCREEN
+			| View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+			| View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+			| View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
         );
         loadApps();
     }
