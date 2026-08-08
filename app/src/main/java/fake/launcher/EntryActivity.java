@@ -17,7 +17,7 @@ public class EntryActivity extends Activity {
             if (dialog != null && dialog.isShowing()) {
                 dialog.dismiss();
             }
-            startActivity(new Intent(this, LauncherActivity.class));
+            startActivity(new Intent(this, oLauncherActivity.class));
             finish();
         } else {
             if (dialog == null || !dialog.isShowing()) {
