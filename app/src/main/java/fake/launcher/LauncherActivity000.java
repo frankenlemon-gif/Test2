@@ -30,7 +30,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public class oLauncherActivity extends Activity {
+public class LauncherActivity000 extends Activity {
 
     private GridView gridView;
     private LauncherApps launcherApps;
@@ -224,16 +224,16 @@ public class oLauncherActivity extends Activity {
 
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
-            LinearLayout layout = new LinearLayout(oLauncherActivity.this);
+            LinearLayout layout = new LinearLayout(LauncherActivity000.this);
             layout.setOrientation(LinearLayout.VERTICAL);
             layout.setGravity(Gravity.CENTER);
             layout.setPadding(16, 16, 16, 16);
             
-            ImageView icon = new ImageView(oLauncherActivity.this);
+            ImageView icon = new ImageView(LauncherActivity000.this);
             icon.setLayoutParams(new LinearLayout.LayoutParams(140, 140));
             icon.setImageDrawable(apps.get(position).getIcon(0));
 
-            TextView text = new TextView(oLauncherActivity.this);
+            TextView text = new TextView(LauncherActivity000.this);
             text.setText(apps.get(position).getLabel());
             text.setTextColor(Color.WHITE);
             text.setSingleLine(true);
