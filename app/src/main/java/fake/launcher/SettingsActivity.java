@@ -99,7 +99,10 @@ public class SettingsActivity extends Activity {
 
         Button saveButton = new Button(this);
         saveButton.setText("Hide selected");
-        saveButton.setOnClickListener(v -> prefs.edit().putStringSet("hidden", hiddenApps).apply());
+        saveButton.setOnClickListener(v -> {
+            prefs.edit().putStringSet("hidden", hiddenApps).apply();
+            showMainMenu();
+        });
 
         Button backButton = new Button(this);
         backButton.setText("Back");
@@ -112,7 +115,7 @@ public class SettingsActivity extends Activity {
         setContentView(root);
     }
 
-       private void showWallpaperMenu() {
+    private void showWallpaperMenu() {
         LinearLayout root = new LinearLayout(this);
         root.setOrientation(LinearLayout.VERTICAL);
         root.setGravity(Gravity.CENTER);
@@ -156,6 +159,7 @@ public class SettingsActivity extends Activity {
                         if (bitmap != null) {
                             wallpaperManager.setBitmap(bitmap, null, true, 
                                     WallpaperManager.FLAG_SYSTEM | WallpaperManager.FLAG_LOCK);
+                            finish();
                         }
                     }
                 } catch (Exception e) {
