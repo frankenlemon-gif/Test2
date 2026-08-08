@@ -1,6 +1,7 @@
 package fake.launcher;
 
 import android.app.Activity;
+import android.app.KeyguardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -34,10 +35,23 @@ public class LauncherActivity extends Activity {
     private LauncherApps launcherApps;
     private List<LauncherActivityInfo> apps;
     private LauncherApps.Callback callback;
+    private KeyguardManager keyguardManager;
+    private boolean wasLockedAndFinished = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        keyguardManager = (KeyguardManager) getSystemService(KEYGUARD_SERVICE);
+
+        if (keyguardManager != null && keyguardManager.isKeyguardLocked()) {
+            wasLockedAndFinished = true;
+            setShowWhenLocked(false);
+            return;
+        } else {
+            wasLockedAndFinished = false;
+            setShowWhenLocked(true);
+        }
 
         launcherApps = (LauncherApps) getSystemService(Context.LAUNCHER_APPS_SERVICE);
         
@@ -136,12 +150,24 @@ public class LauncherActivity extends Activity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        launcherApps.unregisterCallback(callback);
+        if (launcherApps != null && callback != null) {
+            launcherApps.unregisterCallback(callback);
+        }
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+
+        if (keyguardManager != null && keyguardManager.isKeyguardLocked()) {
+            wasLockedAndFinished = true;
+            setShowWhenLocked(false);
+            return;
+        } else {
+            wasLockedAndFinished = false;
+            setShowWhenLocked(true);
+        }
+
         getWindow().getDecorView().setSystemUiVisibility(
 			View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
 			| View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
@@ -153,7 +179,17 @@ public class LauncherActivity extends Activity {
         loadApps();
     }
 
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (wasLockedAndFinished) {
+            setShowWhenLocked(false);
+            finish();
+        }
+    }
+
     private void loadApps() {
+        if (launcherApps == null) return;
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         Set<String> hidden = prefs.getStringSet("hidden", new HashSet<>());
         String myPackage = getPackageName();
@@ -172,7 +208,7 @@ public class LauncherActivity extends Activity {
     }
 
     private class AppAdapter extends BaseAdapter {
-        @Override public int getCount() { return apps.size(); }
+        @Override public int getCount() { return apps == null ? 0 : apps.size(); }
         @Override public Object getItem(int position) { return apps.get(position); }
         @Override public long getItemId(int position) { return position; }
 
