@@ -46,7 +46,6 @@ public class LauncherActivity extends Activity {
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT));
 
-        // 1. Сначала создаем GridView с кнопками приложений
         gridView = new GridView(this);
         gridView.setLayoutParams(new ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
@@ -81,21 +80,18 @@ public class LauncherActivity extends Activity {
             return true;
         });
 
-        // 2. Затем создаем полноэкранную кнопку поверх, которая программно обходит иконки приложений
         Button bgButton = new Button(this) {
             @Override
             public boolean onTouchEvent(MotionEvent event) {
                 int x = (int) event.getX();
                 int y = (int) event.getY();
                 
-                // Проверяем, попало ли касание по иконке приложения в GridView
                 int position = gridView.pointToPosition(x, y);
                 if (position != AdapterView.INVALID_POSITION) {
                     // Если попали на приложение — возвращаем false, пропуская касание вниз к GridView
                     return false; 
                 }
                 
-                // Если пустое место — обрабатываем касание на этой кнопке
                 return super.onTouchEvent(event);
             }
         };
@@ -113,7 +109,6 @@ public class LauncherActivity extends Activity {
             return true;
         });
 
-        // Добавляем сначала GridView, затем поверх него полноэкранную кнопку с обходом
         root.addView(gridView);
         root.addView(bgButton);
         setContentView(root);
@@ -143,6 +138,16 @@ public class LauncherActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_SECURE);
+		getWindow().getDecorView().setKeepScreenOn(true);
+        getWindow().getDecorView().setSystemUiVisibility(
+			View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+			| View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+			| View.SYSTEM_UI_FLAG_FULLSCREEN
+			| View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+			| View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+			| View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+        );
         loadApps();
     }
 
@@ -156,7 +161,6 @@ public class LauncherActivity extends Activity {
         if (list != null) {
             for (LauncherActivityInfo info : list) {
                 String pkg = info.getApplicationInfo().packageName;
-                // Исключаем скрытые приложения И само себя
                 if (!hidden.contains(pkg) && !pkg.equals(myPackage)) {
                     apps.add(info);
                 }
