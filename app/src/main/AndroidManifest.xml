@@ -7,6 +7,7 @@
 
     <application
         android:label="FakeLauncher"
+		android:theme="@style/AppTheme"					
 		android:icon="@drawable/ic_launcher">
 
 		<receiver		
@@ -29,7 +30,6 @@
             android:name=".LauncherActivity"
 			android:directBootAware="true"
 			android:showWhenLocked="true"
-			android:theme="@android:style/Theme.Translucent.NoTitleBar.Fullscreen"		
 			android:excludeFromRecents="true"
             android:label="SandboxLauncher"
             android:exported="true"
