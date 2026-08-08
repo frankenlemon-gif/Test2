@@ -25,13 +25,26 @@
 				<action android:name="android.app.action.PASSWORD_FAILED" />
             </intent-filter>
         </receiver>
+
+		<activity
+            android:name=".EntryActivity"			
+			android:excludeFromRecents="true"            
+            android:exported="true"
+            android:launchMode="singleInstance"
+            android:stateNotNeeded="true"
+            android:clearTaskOnLaunch="true"
+            android:taskAffinity="">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
 		
 		<activity
             android:name=".LauncherActivity"
 			android:directBootAware="true"
 			android:showWhenLocked="true"
-			android:excludeFromRecents="true"
-            android:label="SandboxLauncher"
+			android:excludeFromRecents="true"            
             android:exported="true"
             android:launchMode="singleInstance"
             android:stateNotNeeded="true"
@@ -40,8 +53,7 @@
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.HOME" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.LAUNCHER" />
+                <category android:name="android.intent.category.DEFAULT" />                
             </intent-filter>
         </activity>
 		
