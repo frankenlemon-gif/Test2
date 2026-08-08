@@ -129,7 +129,8 @@ public class SettingsActivity extends Activity {
         setContentView(root);
     }
 
-    @Override
+
+       @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == 1001 && resultCode == RESULT_OK && data != null) {
@@ -139,10 +140,20 @@ public class SettingsActivity extends Activity {
                     WallpaperManager wallpaperManager = WallpaperManager.getInstance(this);
                     InputStream inputStream = getContentResolver().openInputStream(uri);
                     if (inputStream != null) {
-                        wallpaperManager.setStream(inputStream);
+                        Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
                         inputStream.close();
+                        if (bitmap != null) {
+                            wallpaperManager.setBitmap(bitmap, null, true, 
+                                    WallpaperManager.FLAG_SYSTEM | WallpaperManager.FLAG_LOCK);
+                        }
                     }
-                } catch (Exception ignored) {}
+                } catch (Exception e) {
+                    new AlertDialog.Builder(this)
+                            .setTitle("Error")
+                            .setMessage(e.getMessage())
+                            .setPositiveButton("OK", null)
+                            .show();
+                }
             }
         }
     }
