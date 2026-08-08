@@ -15,6 +15,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -38,15 +39,13 @@ public class LauncherActivity extends Activity {
 
         launcherApps = (LauncherApps) getSystemService(Context.LAUNCHER_APPS_SERVICE);
         
-        LinearLayout root = new LinearLayout(this);
+        FrameLayout root = new FrameLayout(this);
         root.setLayoutParams(new ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT));
-        root.setOrientation(LinearLayout.VERTICAL);
-        root.setBackgroundColor(Color.TRANSPARENT);
 
         Button bgButton = new Button(this);
-        bgButton.setLayoutParams(new LinearLayout.LayoutParams(
+        bgButton.setLayoutParams(new ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT));
         bgButton.setBackgroundColor(Color.TRANSPARENT);
@@ -57,7 +56,7 @@ public class LauncherActivity extends Activity {
         });
 
         gridView = new GridView(this);
-        gridView.setLayoutParams(new LinearLayout.LayoutParams(
+        gridView.setLayoutParams(new ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT));
         gridView.setNumColumns(4);
@@ -90,8 +89,8 @@ public class LauncherActivity extends Activity {
             return true;
         });
 
-        bgButton.addView(gridView);
         root.addView(bgButton);
+        root.addView(gridView);
         setContentView(root);
 
         callback = new LauncherApps.Callback() {
