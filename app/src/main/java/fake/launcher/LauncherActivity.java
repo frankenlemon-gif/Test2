@@ -7,6 +7,8 @@ import android.content.SharedPreferences;
 import android.content.pm.LauncherActivityInfo;
 import android.content.pm.LauncherApps;
 import android.graphics.Color;
+import android.graphics.Point;
+import android.graphics.Rect;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.view.Gravity;
@@ -16,6 +18,7 @@ import android.widget.BaseAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.PopupMenu;
 import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -34,19 +37,54 @@ public class LauncherActivity extends Activity {
         super.onCreate(savedInstanceState);
 
         launcherApps = (LauncherApps) getSystemService(Context.LAUNCHER_APPS_SERVICE);
-        gridView = new GridView(this);
-        gridView.setNumColumns(4);
-        gridView.setBackgroundColor(Color.TRANSPARENT);
+        
+        LinearLayout root = new LinearLayout(this);
+        root.setLayoutParams(new ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT));
+        root.setOrientation(LinearLayout.VERTICAL);
+        root.setBackgroundColor(Color.TRANSPARENT);
 
-        gridView.setOnItemLongClickListener((parent, view, position, id) -> {
+        root.setOnLongClickListener(v -> {
             startActivity(new Intent(this, SettingsActivity.class));
             return true;
         });
+
+        gridView = new GridView(this);
+        gridView.setLayoutParams(new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT));
+        gridView.setNumColumns(4);
+        gridView.setBackgroundColor(Color.TRANSPARENT);
 
         gridView.setOnItemClickListener((parent, view, position, id) -> {
             LauncherActivityInfo info = apps.get(position);
             launcherApps.startMainActivity(info.getComponentName(), info.getUser(), null, null);
         });
+
+        gridView.setOnItemLongClickListener((parent, view, position, id) -> {
+            LauncherActivityInfo info = apps.get(position);
+            PopupMenu popup = new PopupMenu(this, view);
+            popup.getMenu().add(0, 1, 0, "App info");
+            popup.getMenu().add(0, 2, 1, "Uninstall");
+            popup.setOnMenuItemClickListener(item -> {
+                if (item.getItemId() == 1) {
+                    launcherApps.startAppDetailsActivity(info.getComponentName(), info.getUser(), null, null);
+                    return true;
+                } else if (item.getItemId() == 2) {
+                    String pkg = info.getApplicationInfo().packageName;
+                    startActivity(new Intent(Intent.ACTION_UNINSTALL_PACKAGE, 
+                            android.net.Uri.parse("package:" + pkg)));
+                    return true;
+                }
+                return false;
+            });
+            popup.show();
+            return true;
+        });
+
+        root.addView(gridView);
+        setContentView(root);
 
         callback = new LauncherApps.Callback() {
             @Override
@@ -62,7 +100,6 @@ public class LauncherActivity extends Activity {
         };
 
         launcherApps.registerCallback(callback);
-        setContentView(gridView);
     }
 
     @Override
