@@ -54,6 +54,11 @@ public class LauncherActivity extends Activity {
         gridView.setBackgroundColor(Color.TRANSPARENT);
         gridView.setSelector(new ColorDrawable(Color.TRANSPARENT));
 
+        float density = getResources().getDisplayMetrics().density;
+        int finalPadding = (int) (44 * density);
+        gridView.setPadding(finalPadding, finalPadding, finalPadding, finalPadding);
+        gridView.setClipToPadding(false);
+
         gridView.setOnItemClickListener((parent, view, position, id) -> {
             LauncherActivityInfo info = apps.get(position);
             launcherApps.startMainActivity(info.getComponentName(), info.getUser(), null, null);
@@ -88,7 +93,6 @@ public class LauncherActivity extends Activity {
                 
                 int position = gridView.pointToPosition(x, y);
                 if (position != AdapterView.INVALID_POSITION) {
-                    // Если попали на приложение — возвращаем false, пропуская касание вниз к GridView
                     return false; 
                 }
                 
@@ -152,7 +156,7 @@ public class LauncherActivity extends Activity {
     private void loadApps() {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         Set<String> hidden = prefs.getStringSet("hidden", new HashSet<>());
-        String myPackage = getPackageName(); // Получаем ID текущего пакета
+        String myPackage = getPackageName();
         apps = new ArrayList<>();
         
         List<LauncherActivityInfo> list = launcherApps.getActivityList(null, android.os.Process.myUserHandle());
