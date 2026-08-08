@@ -56,8 +56,8 @@ public class LauncherActivity extends Activity {
 
         float density = getResources().getDisplayMetrics().density;
         int finalPadding = (int) (44 * density);
-        gridView.setPadding(finalPadding, finalPadding, finalPadding, finalPadding);
-        gridView.setClipToPadding(false);
+        gridView.setPadding(0, finalPadding, 0, finalPadding);
+		gridView.setClipToPadding(false);
 
         gridView.setOnItemClickListener((parent, view, position, id) -> {
             LauncherActivityInfo info = apps.get(position);
