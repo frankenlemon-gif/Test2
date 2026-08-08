@@ -2,6 +2,7 @@ package fake.launcher;
 
 import android.app.Activity;
 import android.app.WallpaperManager;
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
