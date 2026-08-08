@@ -1,12 +1,16 @@
 package fake.launcher;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
-import android.content.pm.ResolveInfo;
+import android.content.pm.LauncherActivityInfo;
+import android.content.pm.LauncherApps;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Process;
+import android.os.UserHandle;
+import android.os.UserManager;
 import android.preference.PreferenceManager;
 import android.view.Gravity;
 import android.view.View;
@@ -24,26 +28,29 @@ import java.util.Set;
 public class LauncherActivity extends Activity {
 
     private GridView gridView;
-    private PackageManager packageManager;
-    private List<ResolveInfo> apps;
+    private LauncherApps launcherApps;
+    private UserManager userManager;
+    private List<LauncherActivityInfo> apps;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        packageManager = getPackageManager();
+        launcherApps = (LauncherApps) getSystemService(Context.LAUNCHER_APPS_SERVICE);
+        userManager = (UserManager) getSystemService(Context.USER_SERVICE);
+
         gridView = new GridView(this);
         gridView.setNumColumns(4);
         gridView.setBackgroundColor(Color.TRANSPARENT);
-        gridView.setOnLongClickListener(v -> {
-            startActivity(new Intent(this, SettingsActivity.class));
+
+        gridView.setOnItemLongClickListener((parent, view, position, id) -> {
+            startActivity(new Intent(LauncherActivity.this, SettingsActivity.class));
             return true;
         });
 
         gridView.setOnItemClickListener((parent, view, position, id) -> {
-            ResolveInfo info = apps.get(position);
-            Intent intent = packageManager.getLaunchIntentForPackage(info.activityInfo.packageName);
-            if (intent != null) startActivity(intent);
+            LauncherActivityInfo info = apps.get(position);
+            launcherApps.startMainActivity(info.getComponentName(), info.getUser(), null, null);
         });
 
         setContentView(gridView);
@@ -56,17 +63,16 @@ public class LauncherActivity extends Activity {
     }
 
     private void loadApps() {
-        Intent mainIntent = new Intent(Intent.ACTION_MAIN, null);
-        mainIntent.addCategory(Intent.CATEGORY_LAUNCHER);
-        List<ResolveInfo> allApps = packageManager.queryIntentActivities(mainIntent, 0);
-
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         Set<String> hidden = prefs.getStringSet("hidden", new HashSet<>());
 
         apps = new ArrayList<>();
-        for (ResolveInfo info : allApps) {
-            if (!hidden.contains(info.activityInfo.packageName)) {
-                apps.add(info);
+        for (UserHandle user : userManager.getUserProfiles()) {
+            List<LauncherActivityInfo> activityList = launcherApps.getActivityList(null, user);
+            for (LauncherActivityInfo info : activityList) {
+                if (!hidden.contains(info.getApplicationInfo().packageName)) {
+                    apps.add(info);
+                }
             }
         }
         gridView.setAdapter(new AppAdapter());
@@ -87,12 +93,14 @@ public class LauncherActivity extends Activity {
             layout.setGravity(Gravity.CENTER);
             layout.setPadding(20, 20, 20, 20);
 
+            LauncherActivityInfo info = apps.get(position);
+
             ImageView icon = new ImageView(LauncherActivity.this);
             icon.setLayoutParams(new LinearLayout.LayoutParams(150, 150));
-            icon.setImageDrawable(apps.get(position).loadIcon(packageManager));
+            icon.setImageDrawable(info.getIcon(0));
 
             TextView text = new TextView(LauncherActivity.this);
-            text.setText(apps.get(position).loadLabel(packageManager));
+            text.setText(info.getLabel());
             text.setTextColor(Color.WHITE);
             text.setGravity(Gravity.CENTER);
 
