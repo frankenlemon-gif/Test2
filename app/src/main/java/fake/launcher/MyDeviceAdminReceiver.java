@@ -15,11 +15,11 @@ public class MyDeviceAdminReceiver extends DeviceAdminReceiver {
 	@Override
 	public void onPasswordFailed(Context context, Intent intent)
 	{
+		LauncherActivity000.isFakeMode = true;
 		Intent i = new Intent(context, LauncherActivity000.class);
         i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         context.startActivity(i);
 	}
-
 
     @Override
     public void onDisabled(Context context, Intent intent) {
