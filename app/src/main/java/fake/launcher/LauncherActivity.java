@@ -1,200 +1,187 @@
 package fake.launcher;
 
 import android.app.Activity;
+import android.app.WallpaperManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.LauncherActivityInfo;
 import android.content.pm.LauncherApps;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.UserHandle;
+import android.os.UserManager;
 import android.preference.PreferenceManager;
-import android.view.Gravity;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.BaseAdapter;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.FrameLayout;
-import android.widget.GridView;
-import android.widget.ImageView;
+import android.widget.CheckBox;
 import android.widget.LinearLayout;
-import android.widget.PopupMenu;
-import android.widget.TextView;
+import android.widget.ListView;
+import android.widget.Toast;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public class LauncherActivity extends Activity {
+public class SettingsActivity extends Activity {
 
-    private GridView gridView;
-    private LauncherApps launcherApps;
-    private List<LauncherActivityInfo> apps;
-    private LauncherApps.Callback callback;
+    private Set<String> hiddenApps;
+    private List<LauncherActivityInfo> allApps;
+    private SharedPreferences prefs;
+    private int finalPadding;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        launcherApps = (LauncherApps) getSystemService(Context.LAUNCHER_APPS_SERVICE);
-        
-        FrameLayout root = new FrameLayout(this);
+        prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        hiddenApps = new HashSet<>(prefs.getStringSet("hidden", new HashSet<>()));
+
+        LauncherApps launcherApps = (LauncherApps) getSystemService(Context.LAUNCHER_APPS_SERVICE);
+        UserManager userManager = (UserManager) getSystemService(Context.USER_SERVICE);
+
+        allApps = new ArrayList<>();
+        for (UserHandle user : userManager.getUserProfiles()) {
+            allApps.addAll(launcherApps.getActivityList(null, user));
+        }
+
+        float density = getResources().getDisplayMetrics().density;
+        finalPadding = (int) (44 * density);
+
+        showMainMenu();
+    }
+
+    private void showMainMenu() {
+        LinearLayout root = new LinearLayout(this);
+        root.setOrientation(LinearLayout.VERTICAL);
+        root.setPadding(0, finalPadding, 0, finalPadding);
+        root.setClipToPadding(false);
         root.setLayoutParams(new ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT));
 
-        gridView = new GridView(this);
-        gridView.setLayoutParams(new ViewGroup.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.MATCH_PARENT));
-        gridView.setNumColumns(4);
-        gridView.setBackgroundColor(Color.TRANSPARENT);
-        gridView.setSelector(new ColorDrawable(Color.TRANSPARENT));
+        Button btnHideApps = new Button(this);
+        btnHideApps.setText("Hide apps");
+        btnHideApps.setOnClickListener(v -> showHideAppsMenu());
 
-        float density = getResources().getDisplayMetrics().density;
-        int finalPadding = (int) (44 * density);
-        gridView.setPadding(0, finalPadding, 0, finalPadding);
-		gridView.setClipToPadding(false);
+        Button btnWallpaper = new Button(this);
+        btnWallpaper.setText("Select wallpaper");
+        btnWallpaper.setOnClickListener(v -> showWallpaperMenu());
 
-        gridView.setOnItemClickListener((parent, view, position, id) -> {
-            LauncherActivityInfo info = apps.get(position);
-            launcherApps.startMainActivity(info.getComponentName(), info.getUser(), null, null);
-        });
+        Button btnBack = new Button(this);
+        btnBack.setText("Back");
+        btnBack.setOnClickListener(v -> finish());
 
-        gridView.setOnItemLongClickListener((parent, view, position, id) -> {
-            LauncherActivityInfo info = apps.get(position);
-            PopupMenu popup = new PopupMenu(this, view);
-            popup.getMenu().add(0, 1, 0, "App info");
-            popup.getMenu().add(0, 2, 1, "Uninstall");
-            popup.setOnMenuItemClickListener(item -> {
-                if (item.getItemId() == 1) {
-                    launcherApps.startAppDetailsActivity(info.getComponentName(), info.getUser(), null, null);
-                    return true;
-                } else if (item.getItemId() == 2) {
-                    String pkg = info.getApplicationInfo().packageName;
-                    startActivity(new Intent(Intent.ACTION_UNINSTALL_PACKAGE, 
-                            android.net.Uri.parse("package:" + pkg)));
-                    return true;
-                }
-                return false;
-            });
-            popup.show();
-            return true;
-        });
+        root.addView(btnHideApps);
+        root.addView(btnWallpaper);
+        root.addView(btnBack);
 
-        Button bgButton = new Button(this) {
-            @Override
-            public boolean onTouchEvent(MotionEvent event) {
-                int x = (int) event.getX();
-                int y = (int) event.getY();
-                
-                int position = gridView.pointToPosition(x, y);
-                if (position != AdapterView.INVALID_POSITION) {
-                    return false; 
-                }
-                
-                return super.onTouchEvent(event);
-            }
-        };
-
-        bgButton.setLayoutParams(new ViewGroup.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.MATCH_PARENT));
-        bgButton.setBackgroundColor(Color.TRANSPARENT);
-        bgButton.setElevation(0f);
-        bgButton.setTranslationZ(0f);
-
-        bgButton.setOnClickListener(v -> {});
-        bgButton.setOnLongClickListener(v -> {
-            startActivity(new Intent(this, SettingsActivity.class));
-            return true;
-        });
-
-        root.addView(gridView);
-        root.addView(bgButton);
         setContentView(root);
+    }
 
-        callback = new LauncherApps.Callback() {
-            @Override
-            public void onPackageAdded(String packageName, android.os.UserHandle user) { loadApps(); }
-            @Override
-            public void onPackageRemoved(String packageName, android.os.UserHandle user) { loadApps(); }
-            @Override
-            public void onPackageChanged(String packageName, android.os.UserHandle user) { loadApps(); }
-            @Override
-            public void onPackagesAvailable(String[] packageNames, android.os.UserHandle user, boolean replacing) { loadApps(); }
-            @Override
-            public void onPackagesUnavailable(String[] packageNames, android.os.UserHandle user, boolean replacing) { loadApps(); }
-        };
+    private void showHideAppsMenu() {
+        LinearLayout root = new LinearLayout(this);
+        root.setOrientation(LinearLayout.VERTICAL);
+        root.setPadding(0, finalPadding, 0, finalPadding);
+        root.setClipToPadding(false);
+        root.setLayoutParams(new ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT));
 
-        launcherApps.registerCallback(callback);
+        ListView listView = new ListView(this);
+        listView.setLayoutParams(new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, 0, 1.0f));
+        listView.setAdapter(new SettingsAdapter());
+
+        Button saveButton = new Button(this);
+        saveButton.setText("Hide selected");
+        saveButton.setOnClickListener(v -> prefs.edit().putStringSet("hidden", hiddenApps).apply());
+
+        Button backButton = new Button(this);
+        backButton.setText("Back");
+        backButton.setOnClickListener(v -> showMainMenu());
+
+        root.addView(listView);
+        root.addView(saveButton);
+        root.addView(backButton);
+
+        setContentView(root);
+    }
+
+    private void showWallpaperMenu() {
+        LinearLayout root = new LinearLayout(this);
+        root.setOrientation(LinearLayout.VERTICAL);
+        root.setPadding(0, finalPadding, 0, finalPadding);
+        root.setClipToPadding(false);
+        root.setLayoutParams(new ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT));
+
+        Button btnChoose = new Button(this);
+        btnChoose.setText("Select wallpaper");
+        btnChoose.setOnClickListener(v -> {
+            Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+            intent.addCategory(Intent.CATEGORY_OPENABLE);
+            intent.setType("image/*");
+            startActivityForResult(intent, 1001);
+        });
+
+        Button backButton = new Button(this);
+        backButton.setText("Back");
+        backButton.setOnClickListener(v -> showMainMenu());
+
+        root.addView(btnChoose);
+        root.addView(backButton);
+
+        setContentView(root);
     }
 
     @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        launcherApps.unregisterCallback(callback);
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        getWindow().getDecorView().setSystemUiVisibility(
-			View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-			| View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-			| View.SYSTEM_UI_FLAG_FULLSCREEN
-			| View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-			| View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-			| View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-        );
-        loadApps();
-    }
-
-    private void loadApps() {
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        Set<String> hidden = prefs.getStringSet("hidden", new HashSet<>());
-        String myPackage = getPackageName();
-        apps = new ArrayList<>();
-        
-        List<LauncherActivityInfo> list = launcherApps.getActivityList(null, android.os.Process.myUserHandle());
-        if (list != null) {
-            for (LauncherActivityInfo info : list) {
-                String pkg = info.getApplicationInfo().packageName;
-                if (!hidden.contains(pkg) && !pkg.equals(myPackage)) {
-                    apps.add(info);
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == 1001 && resultCode == RESULT_OK && data != null) {
+            Uri uri = data.getData();
+            if (uri != null) {
+                try {
+                    WallpaperManager wallpaperManager = WallpaperManager.getInstance(this);
+                    InputStream inputStream = getContentResolver().openInputStream(uri);
+                    if (inputStream != null) {
+                        wallpaperManager.setStream(inputStream, null, true, 
+                                WallpaperManager.FLAG_SYSTEM | WallpaperManager.FLAG_LOCK);
+                        inputStream.close();
+                    }
+                } catch (Exception e) {
+                    new android.app.AlertDialog.Builder(this)
+                            .setTitle("Error")
+                            .setMessage(e.getMessage())
+                            .setPositiveButton("OK", null)
+                            .show();
                 }
             }
         }
-        runOnUiThread(() -> gridView.setAdapter(new AppAdapter()));
     }
 
-    private class AppAdapter extends BaseAdapter {
-        @Override public int getCount() { return apps.size(); }
-        @Override public Object getItem(int position) { return apps.get(position); }
-        @Override public long getItemId(int position) { return position; }
+    private class SettingsAdapter extends ArrayAdapter<LauncherActivityInfo> {
+        public SettingsAdapter() {
+            super(SettingsActivity.this, android.R.layout.simple_list_item_multiple_choice, allApps);
+        }
 
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
-            LinearLayout layout = new LinearLayout(LauncherActivity.this);
-            layout.setOrientation(LinearLayout.VERTICAL);
-            layout.setGravity(Gravity.CENTER);
-            layout.setPadding(16, 16, 16, 16);
-            
-            ImageView icon = new ImageView(LauncherActivity.this);
-            icon.setLayoutParams(new LinearLayout.LayoutParams(140, 140));
-            icon.setImageDrawable(apps.get(position).getIcon(0));
+            CheckBox checkBox = new CheckBox(SettingsActivity.this);
+            LauncherActivityInfo info = getItem(position);
+            String pkg = info.getApplicationInfo().packageName;
 
-            TextView text = new TextView(LauncherActivity.this);
-            text.setText(apps.get(position).getLabel());
-            text.setTextColor(Color.WHITE);
-            text.setSingleLine(true);
-            
-            layout.addView(icon);
-            layout.addView(text);
-            return layout;
+            checkBox.setText(info.getLabel());
+            checkBox.setChecked(hiddenApps.contains(pkg));
+            checkBox.setOnClickListener(v -> {
+                if (checkBox.isChecked()) hiddenApps.add(pkg);
+                else hiddenApps.remove(pkg);
+            });
+            return checkBox;
         }
     }
 }
