@@ -1,8 +1,6 @@
 package fake.launcher;
 
 import android.app.Activity;
-import android.app.AlertDialog;
-import android.app.WallpaperManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -10,7 +8,6 @@ import android.content.pm.LauncherActivityInfo;
 import android.content.pm.LauncherApps;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.view.Gravity;
@@ -48,20 +45,6 @@ public class LauncherActivity extends Activity {
         root.setLayoutParams(new ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT));
-
-        try {
-            WallpaperManager wallpaperManager = WallpaperManager.getInstance(this);
-            Drawable wallpaperDrawable = wallpaperManager.getDrawable();
-            if (wallpaperDrawable != null) {
-                root.setBackground(wallpaperDrawable);
-            }
-        } catch (Exception e) {
-            new AlertDialog.Builder(this)
-                    .setTitle("Error")
-                    .setMessage(e.getMessage())
-                    .setPositiveButton("OK", null)
-                    .show();
-        }
 
         // Полноэкранная невидимая кнопка-подложка для пустой зоны
         Button bgButton = new Button(this);
