@@ -224,16 +224,16 @@ public class oLauncherActivity extends Activity {
 
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
-            LinearLayout layout = new LinearLayout(LauncherActivity.this);
+            LinearLayout layout = new LinearLayout(oLauncherActivity.this);
             layout.setOrientation(LinearLayout.VERTICAL);
             layout.setGravity(Gravity.CENTER);
             layout.setPadding(16, 16, 16, 16);
             
-            ImageView icon = new ImageView(LauncherActivity.this);
+            ImageView icon = new ImageView(oLauncherActivity.this);
             icon.setLayoutParams(new LinearLayout.LayoutParams(140, 140));
             icon.setImageDrawable(apps.get(position).getIcon(0));
 
-            TextView text = new TextView(LauncherActivity.this);
+            TextView text = new TextView(oLauncherActivity.this);
             text.setText(apps.get(position).getLabel());
             text.setTextColor(Color.WHITE);
             text.setSingleLine(true);
