@@ -16,8 +16,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
-import android.widget.Button;
-import android.widget.FrameLayout;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -34,39 +32,23 @@ public class LauncherActivity extends Activity {
     private LauncherApps launcherApps;
     private List<LauncherActivityInfo> apps;
     private LauncherApps.Callback callback;
+    private float touchX, touchY;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         launcherApps = (LauncherApps) getSystemService(Context.LAUNCHER_APPS_SERVICE);
-        
-        FrameLayout root = new FrameLayout(this);
-        root.setLayoutParams(new ViewGroup.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.MATCH_PARENT));
 
-        // Полноэкранная невидимая кнопка-подложка для пустой зоны
-        Button bgButton = new Button(this);
-        bgButton.setLayoutParams(new ViewGroup.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.MATCH_PARENT));
-        bgButton.setBackgroundColor(Color.TRANSPARENT);
-        bgButton.setOnClickListener(v -> {});
-        bgButton.setOnLongClickListener(v -> {
-            startActivity(new Intent(this, SettingsActivity.class));
-            return true;
-        });
-
-        // GridView с пробросом касаний в пустых местах
+        // Создаем GridView с перехватом координат для пустых областей
         gridView = new GridView(this) {
             @Override
-            public boolean onTouchEvent(MotionEvent ev) {
-                int position = pointToPosition((int) ev.getX(), (int) ev.getY());
-                if (position == AdapterView.INVALID_POSITION) {
-                    return false; // Пропускаем касание на фоновую кнопку в пустой зоне
+            public boolean dispatchTouchEvent(MotionEvent ev) {
+                if (ev.getAction() == MotionEvent.ACTION_DOWN) {
+                    touchX = ev.getX();
+                    touchY = ev.getY();
                 }
-                return super.onTouchEvent(ev);
+                return super.dispatchTouchEvent(ev);
             }
         };
 
@@ -77,11 +59,23 @@ public class LauncherActivity extends Activity {
         gridView.setBackgroundColor(Color.TRANSPARENT);
         gridView.setSelector(new ColorDrawable(Color.TRANSPARENT));
 
+        // Клик по иконке приложения
         gridView.setOnItemClickListener((parent, view, position, id) -> {
             LauncherActivityInfo info = apps.get(position);
             launcherApps.startMainActivity(info.getComponentName(), info.getUser(), null, null);
         });
 
+        // Долгий тап на пустое пространство открывает настройки
+        gridView.setOnLongClickListener(v -> {
+            int position = gridView.pointToPosition((int) touchX, (int) touchY);
+            if (position == AdapterView.INVALID_POSITION) {
+                startActivity(new Intent(this, SettingsActivity.class));
+                return true;
+            }
+            return false;
+        });
+
+        // Долгий тап по иконке приложения открывает меню (App info / Uninstall)
         gridView.setOnItemLongClickListener((parent, view, position, id) -> {
             LauncherActivityInfo info = apps.get(position);
             PopupMenu popup = new PopupMenu(this, view);
@@ -103,9 +97,7 @@ public class LauncherActivity extends Activity {
             return true;
         });
 
-        root.addView(bgButton);
-        root.addView(gridView);
-        setContentView(root);
+        setContentView(gridView);
 
         callback = new LauncherApps.Callback() {
             @Override
