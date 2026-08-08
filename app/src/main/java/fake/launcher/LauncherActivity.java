@@ -48,11 +48,15 @@ public class LauncherActivity extends Activity {
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT));
 
-        // Получение и установка текущих системных обоев в качестве фона активити
-        WallpaperManager wallpaperManager = WallpaperManager.getInstance(this);
-        Drawable wallpaperDrawable = wallpaperManager.getDrawable();
-        if (wallpaperDrawable != null) {
-            root.setBackground(wallpaperDrawable);
+        // Безопасная установка системных обоев с перехватом исключений
+        try {
+            WallpaperManager wallpaperManager = WallpaperManager.getInstance(this);
+            Drawable wallpaperDrawable = wallpaperManager.getDrawable();
+            if (wallpaperDrawable != null) {
+                root.setBackground(wallpaperDrawable);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
 
         // Полноэкранная невидимая кнопка-подложка для пустой зоны
