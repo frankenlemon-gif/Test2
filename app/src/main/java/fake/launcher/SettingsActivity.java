@@ -1,10 +1,13 @@
 package fake.launcher;
 
 import android.app.Activity;
+import android.app.WallpaperManager;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.LauncherActivityInfo;
 import android.content.pm.LauncherApps;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.UserHandle;
 import android.os.UserManager;
@@ -16,6 +19,7 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -25,12 +29,14 @@ public class SettingsActivity extends Activity {
 
     private Set<String> hiddenApps;
     private List<LauncherActivityInfo> allApps;
+    private SharedPreferences prefs;
+    private int finalPadding;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        prefs = PreferenceManager.getDefaultSharedPreferences(this);
         hiddenApps = new HashSet<>(prefs.getStringSet("hidden", new HashSet<>()));
 
         LauncherApps launcherApps = (LauncherApps) getSystemService(Context.LAUNCHER_APPS_SERVICE);
@@ -41,25 +47,104 @@ public class SettingsActivity extends Activity {
             allApps.addAll(launcherApps.getActivityList(null, user));
         }
 
+        float density = getResources().getDisplayMetrics().density;
+        finalPadding = (int) (44 * density);
+
+        showMainMenu();
+    }
+
+    private void showMainMenu() {
         LinearLayout root = new LinearLayout(this);
         root.setOrientation(LinearLayout.VERTICAL);
+        root.setPadding(0, finalPadding, 0, finalPadding);
+        root.setClipToPadding(false);
+
+        Button btnHideApps = new Button(this);
+        btnHideApps.setText("Hide apps");
+        btnHideApps.setOnClickListener(v -> showHideAppsMenu());
+
+        Button btnWallpaper = new Button(this);
+        btnWallpaper.setText("Select wallpaper");
+        btnWallpaper.setOnClickListener(v -> showWallpaperMenu());
+
+        Button btnBack = new Button(this);
+        btnBack.setText("Back");
+        btnBack.setOnClickListener(v -> finish());
+
+        root.addView(btnHideApps);
+        root.addView(btnWallpaper);
+        root.addView(btnBack);
+
+        setContentView(root);
+    }
+
+    private void showHideAppsMenu() {
+        LinearLayout root = new LinearLayout(this);
+        root.setOrientation(LinearLayout.VERTICAL);
+        root.setPadding(0, finalPadding, 0, finalPadding);
+        root.setClipToPadding(false);
 
         ListView listView = new ListView(this);
         listView.setLayoutParams(new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, 0, 1.0f));
+        listView.setAdapter(new SettingsAdapter());
 
         Button saveButton = new Button(this);
         saveButton.setText("Hide selected");
-        saveButton.setOnClickListener(v -> {
-            prefs.edit().putStringSet("hidden", hiddenApps).apply();
-            finish();
-        });
+        saveButton.setOnClickListener(v -> prefs.edit().putStringSet("hidden", hiddenApps).apply());
 
-        listView.setAdapter(new SettingsAdapter());
+        Button backButton = new Button(this);
+        backButton.setText("Back");
+        backButton.setOnClickListener(v -> showMainMenu());
 
         root.addView(listView);
         root.addView(saveButton);
+        root.addView(backButton);
+
         setContentView(root);
+    }
+
+    private void showWallpaperMenu() {
+        LinearLayout root = new LinearLayout(this);
+        root.setOrientation(LinearLayout.VERTICAL);
+        root.setPadding(0, finalPadding, 0, finalPadding);
+        root.setClipToPadding(false);
+
+        Button btnChoose = new Button(this);
+        btnChoose.setText("Choose from gallery");
+        btnChoose.setOnClickListener(v -> {
+            Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+            intent.addCategory(Intent.CATEGORY_OPENABLE);
+            intent.setType("image/*");
+            startActivityForResult(intent, 1001);
+        });
+
+        Button backButton = new Button(this);
+        backButton.setText("Back");
+        backButton.setOnClickListener(v -> showMainMenu());
+
+        root.addView(btnChoose);
+        root.addView(backButton);
+
+        setContentView(root);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == 1001 && resultCode == RESULT_OK && data != null) {
+            Uri uri = data.getData();
+            if (uri != null) {
+                try {
+                    WallpaperManager wallpaperManager = WallpaperManager.getInstance(this);
+                    InputStream inputStream = getContentResolver().openInputStream(uri);
+                    if (inputStream != null) {
+                        wallpaperManager.setStream(inputStream);
+                        inputStream.close();
+                    }
+                } catch (Exception ignored) {}
+            }
+        }
     }
 
     private class SettingsAdapter extends ArrayAdapter<LauncherActivityInfo> {
