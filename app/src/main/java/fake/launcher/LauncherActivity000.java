@@ -32,7 +32,7 @@ import java.util.Set;
 
 public class LauncherActivity000 extends Activity {
 
-	private static Boolean isFakeMode=false;
+	public static boolean isFakeMode=false;
 
     private GridView gridView;
     private LauncherApps launcherApps;
