@@ -3,9 +3,11 @@ package fake.launcher;
 import android.app.Activity;
 import android.app.WallpaperManager;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.LauncherActivityInfo;
 import android.content.pm.LauncherApps;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.UserHandle;
 import android.os.UserManager;
@@ -17,6 +19,7 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -108,11 +111,12 @@ public class SettingsActivity extends Activity {
         root.setClipToPadding(false);
 
         Button btnChoose = new Button(this);
-        btnChoose.setText("Set Wallpaper");
+        btnChoose.setText("Choose from gallery");
         btnChoose.setOnClickListener(v -> {
-            try {
-                WallpaperManager.getInstance(this).setResource(R.drawable.wallpaper);
-            } catch (Exception ignored) {}
+            Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+            intent.addCategory(Intent.CATEGORY_OPENABLE);
+            intent.setType("image/*");
+            startActivityForResult(intent, 1001);
         });
 
         Button backButton = new Button(this);
@@ -123,6 +127,24 @@ public class SettingsActivity extends Activity {
         root.addView(backButton);
 
         setContentView(root);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == 1001 && resultCode == RESULT_OK && data != null) {
+            Uri uri = data.getData();
+            if (uri != null) {
+                try {
+                    WallpaperManager wallpaperManager = WallpaperManager.getInstance(this);
+                    InputStream inputStream = getContentResolver().openInputStream(uri);
+                    if (inputStream != null) {
+                        wallpaperManager.setStream(inputStream);
+                        inputStream.close();
+                    }
+                } catch (Exception ignored) {}
+            }
+        }
     }
 
     private class SettingsAdapter extends ArrayAdapter<LauncherActivityInfo> {
