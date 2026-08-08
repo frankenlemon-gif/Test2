@@ -40,7 +40,7 @@
         </activity>
 		
 		<activity
-            android:name=".LauncherActivity"
+            android:name=".oLauncherActivity"
 			android:directBootAware="true"			
 			android:excludeFromRecents="true"            
             android:exported="true"
