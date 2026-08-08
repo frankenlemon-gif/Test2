@@ -7,8 +7,7 @@ import android.content.SharedPreferences;
 import android.content.pm.LauncherActivityInfo;
 import android.content.pm.LauncherApps;
 import android.graphics.Color;
-import android.graphics.Point;
-import android.graphics.Rect;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.view.Gravity;
@@ -45,17 +44,18 @@ public class LauncherActivity extends Activity {
         root.setOrientation(LinearLayout.VERTICAL);
         root.setBackgroundColor(Color.TRANSPARENT);
 
-        root.setOnLongClickListener(v -> {
-            startActivity(new Intent(this, SettingsActivity.class));
-            return true;
-        });
-
         gridView = new GridView(this);
         gridView.setLayoutParams(new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT));
         gridView.setNumColumns(4);
         gridView.setBackgroundColor(Color.TRANSPARENT);
+        gridView.setSelector(new ColorDrawable(Color.TRANSPARENT));
+
+        gridView.setOnLongClickListener(v -> {
+            startActivity(new Intent(this, SettingsActivity.class));
+            return true;
+        });
 
         gridView.setOnItemClickListener((parent, view, position, id) -> {
             LauncherActivityInfo info = apps.get(position);
