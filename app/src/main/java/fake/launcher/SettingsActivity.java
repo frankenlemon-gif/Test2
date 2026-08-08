@@ -19,7 +19,6 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.Toast;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -59,9 +58,6 @@ public class SettingsActivity extends Activity {
         root.setOrientation(LinearLayout.VERTICAL);
         root.setPadding(0, finalPadding, 0, finalPadding);
         root.setClipToPadding(false);
-        root.setLayoutParams(new ViewGroup.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.MATCH_PARENT));
 
         Button btnHideApps = new Button(this);
         btnHideApps.setText("Hide apps");
@@ -87,9 +83,6 @@ public class SettingsActivity extends Activity {
         root.setOrientation(LinearLayout.VERTICAL);
         root.setPadding(0, finalPadding, 0, finalPadding);
         root.setClipToPadding(false);
-        root.setLayoutParams(new ViewGroup.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.MATCH_PARENT));
 
         ListView listView = new ListView(this);
         listView.setLayoutParams(new LinearLayout.LayoutParams(
@@ -116,12 +109,9 @@ public class SettingsActivity extends Activity {
         root.setOrientation(LinearLayout.VERTICAL);
         root.setPadding(0, finalPadding, 0, finalPadding);
         root.setClipToPadding(false);
-        root.setLayoutParams(new ViewGroup.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.MATCH_PARENT));
 
         Button btnChoose = new Button(this);
-        btnChoose.setText("Select wallpaper");
+        btnChoose.setText("Choose from gallery");
         btnChoose.setOnClickListener(v -> {
             Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
             intent.addCategory(Intent.CATEGORY_OPENABLE);
@@ -149,17 +139,10 @@ public class SettingsActivity extends Activity {
                     WallpaperManager wallpaperManager = WallpaperManager.getInstance(this);
                     InputStream inputStream = getContentResolver().openInputStream(uri);
                     if (inputStream != null) {
-                        wallpaperManager.setStream(inputStream, null, true, 
-                                WallpaperManager.FLAG_SYSTEM | WallpaperManager.FLAG_LOCK);
+                        wallpaperManager.setStream(inputStream);
                         inputStream.close();
                     }
-                } catch (Exception e) {
-                    new android.app.AlertDialog.Builder(this)
-                            .setTitle("Error")
-                            .setMessage(e.getMessage())
-                            .setPositiveButton("OK", null)
-                            .show();
-                }
+                } catch (Exception ignored) {}
             }
         }
     }
