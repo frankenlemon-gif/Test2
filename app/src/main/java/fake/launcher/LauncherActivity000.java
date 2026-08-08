@@ -32,6 +32,8 @@ import java.util.Set;
 
 public class LauncherActivity000 extends Activity {
 
+	private static Boolean isFakeMode=false;
+
     private GridView gridView;
     private LauncherApps launcherApps;
     private List<LauncherActivityInfo> apps;
@@ -42,6 +44,11 @@ public class LauncherActivity000 extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+		if (isFakeMode) {
+			setShowWhenLocked(true);
+			return;
+		}
 
         keyguardManager = (KeyguardManager) getSystemService(KEYGUARD_SERVICE);
 
@@ -168,6 +175,11 @@ public class LauncherActivity000 extends Activity {
     protected void onResume() {
         super.onResume();
 
+		if (isFakeMode) {
+			setShowWhenLocked(true);
+			return;
+		}
+
         if (keyguardManager != null && keyguardManager.isKeyguardLocked()) {
             wasLockedAndFinished = true;
             setShowWhenLocked(false);
@@ -191,6 +203,10 @@ public class LauncherActivity000 extends Activity {
     @Override
     protected void onPause() {
         super.onPause();
+		if (isFakeMode) {	
+			setShowWhenLocked(true);
+			return;
+		}
         if (wasLockedAndFinished) {
 			wasLockedAndFinished = false;
             setShowWhenLocked(false);
