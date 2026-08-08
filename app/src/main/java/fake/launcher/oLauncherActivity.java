@@ -30,7 +30,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public class LauncherActivity extends Activity {
+public class oLauncherActivity extends Activity {
 
     private GridView gridView;
     private LauncherApps launcherApps;
