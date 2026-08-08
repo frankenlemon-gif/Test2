@@ -1,6 +1,7 @@
 package fake.launcher;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.WallpaperManager;
 import android.content.Context;
 import android.content.Intent;
@@ -48,7 +49,6 @@ public class LauncherActivity extends Activity {
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT));
 
-        // Безопасная установка системных обоев с перехватом исключений
         try {
             WallpaperManager wallpaperManager = WallpaperManager.getInstance(this);
             Drawable wallpaperDrawable = wallpaperManager.getDrawable();
@@ -56,7 +56,11 @@ public class LauncherActivity extends Activity {
                 root.setBackground(wallpaperDrawable);
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            new AlertDialog.Builder(this)
+                    .setTitle("Error")
+                    .setMessage(e.getMessage())
+                    .setPositiveButton("OK", null)
+                    .show();
         }
 
         // Полноэкранная невидимая кнопка-подложка для пустой зоны
