@@ -11,8 +11,10 @@ import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.view.Gravity;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.FrameLayout;
@@ -44,6 +46,7 @@ public class LauncherActivity extends Activity {
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT));
 
+        // Полноэкранная невидимая кнопка-подложка для пустой зоны
         Button bgButton = new Button(this);
         bgButton.setLayoutParams(new ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
@@ -55,7 +58,18 @@ public class LauncherActivity extends Activity {
             return true;
         });
 
-        gridView = new GridView(this);
+        // GridView с пробросом касаний в пустых местах
+        gridView = new GridView(this) {
+            @Override
+            public boolean onTouchEvent(MotionEvent ev) {
+                int position = pointToPosition((int) ev.getX(), (int) ev.getY());
+                if (position == AdapterView.INVALID_POSITION) {
+                    return false; // Пропускаем касание на фоновую кнопку в пустой зоне
+                }
+                return super.onTouchEvent(ev);
+            }
+        };
+
         gridView.setLayoutParams(new ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT));
