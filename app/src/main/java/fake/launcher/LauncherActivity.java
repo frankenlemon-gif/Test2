@@ -11,12 +11,10 @@ import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.view.Gravity;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
-import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.GridView;
 import android.widget.ImageView;
@@ -57,7 +55,7 @@ public class LauncherActivity extends Activity {
         float density = getResources().getDisplayMetrics().density;
         int finalPadding = (int) (44 * density);
         gridView.setPadding(0, finalPadding, 0, finalPadding);
-		gridView.setClipToPadding(false);
+        gridView.setClipToPadding(false);
 
         gridView.setOnItemClickListener((parent, view, position, id) -> {
             LauncherActivityInfo info = apps.get(position);
@@ -85,36 +83,15 @@ public class LauncherActivity extends Activity {
             return true;
         });
 
-        Button bgButton = new Button(this) {
-            @Override
-            public boolean onTouchEvent(MotionEvent event) {
-                int x = (int) event.getX();
-                int y = (int) event.getY();
-                
-                int position = gridView.pointToPosition(x, y);
-                if (position != AdapterView.INVALID_POSITION) {
-                    return false; 
-                }
-                
-                return super.onTouchEvent(event);
-            }
-        };
-
-        bgButton.setLayoutParams(new ViewGroup.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.MATCH_PARENT));
-        bgButton.setBackgroundColor(Color.TRANSPARENT);
-        bgButton.setElevation(0f);
-        bgButton.setTranslationZ(0f);
-
-        bgButton.setOnClickListener(v -> {});
-        bgButton.setOnLongClickListener(v -> {
+        // Корневой контейнер обрабатывает долгое нажатие по стандартному таймеру системы,
+        // если клик не пришелся на пустой элемент сетки (хотя GridView заполняет пространство, 
+        // пустые области фона теперь корректно реагируют через root).
+        root.setOnLongClickListener(v -> {
             startActivity(new Intent(this, SettingsActivity.class));
             return true;
         });
 
         root.addView(gridView);
-        root.addView(bgButton);
         setContentView(root);
 
         callback = new LauncherApps.Callback() {
@@ -143,12 +120,12 @@ public class LauncherActivity extends Activity {
     protected void onResume() {
         super.onResume();
         getWindow().getDecorView().setSystemUiVisibility(
-			View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-			| View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-			| View.SYSTEM_UI_FLAG_FULLSCREEN
-			| View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-			| View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-			| View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+            View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+            | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+            | View.SYSTEM_UI_FLAG_FULLSCREEN
+            | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+            | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+            | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
         );
         loadApps();
     }
