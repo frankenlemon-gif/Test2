@@ -1,7 +1,6 @@
 package fake.launcher;
 
 import android.app.Activity;
-import android.app.KeyguardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -36,23 +35,10 @@ public class LauncherActivity extends Activity {
     private LauncherApps launcherApps;
     private List<LauncherActivityInfo> apps;
     private LauncherApps.Callback callback;
-    private KeyguardManager keyguardManager;
-    private boolean wasLockedAndFinished = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        keyguardManager = (KeyguardManager) getSystemService(KEYGUARD_SERVICE);
-
-        if (keyguardManager != null && keyguardManager.isKeyguardLocked()) {
-            wasLockedAndFinished = true;
-            setShowWhenLocked(false);
-            return;
-        } else {
-            wasLockedAndFinished = false;
-            setShowWhenLocked(true);
-        }
 
         launcherApps = (LauncherApps) getSystemService(Context.LAUNCHER_APPS_SERVICE);
         
@@ -167,16 +153,6 @@ public class LauncherActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
-
-        if (keyguardManager != null && keyguardManager.isKeyguardLocked()) {
-            wasLockedAndFinished = true;
-            setShowWhenLocked(false);
-            return;
-        } else {
-            wasLockedAndFinished = false;
-            setShowWhenLocked(true);
-        }
-
         getWindow().getDecorView().setSystemUiVisibility(
 			View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
 			| View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
@@ -186,16 +162,6 @@ public class LauncherActivity extends Activity {
 			| View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
         );
         loadApps();
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        if (wasLockedAndFinished) {
-			wasLockedAndFinished = false;
-            setShowWhenLocked(false);
-            finish();
-        }
     }
 
     private void loadApps() {
