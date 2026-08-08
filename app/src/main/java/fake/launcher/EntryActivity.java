@@ -1,16 +1,15 @@
-package fake.launcher;
+package com.example.mylauncher;
 
 import android.app.Activity;
+import android.app.role.RoleManager;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.content.pm.ResolveInfo;
 import android.provider.Settings;
 import android.view.Gravity;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-public class EntryActivity extends Activity {
+public class LauncherProxyActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
@@ -28,7 +27,14 @@ public class EntryActivity extends Activity {
             
             Button b = new Button(this);
             b.setText("Open Settings");
-            b.setOnClickListener(v -> startActivity(new Intent(Settings.ACTION_HOME_SETTINGS)));
+            b.setOnClickListener(v -> {
+                RoleManager rm = getSystemService(RoleManager.class);
+                if (rm != null && rm.isRoleAvailable(RoleManager.ROLE_HOME)) {
+                    startActivity(rm.createRequestRoleIntent(RoleManager.ROLE_HOME));
+                } else {
+                    startActivity(new Intent(Settings.ACTION_HOME_SETTINGS));
+                }
+            });
             
             l.addView(t);
             l.addView(b);
@@ -37,8 +43,7 @@ public class EntryActivity extends Activity {
     }
 
     private boolean isDefault() {
-        Intent i = new Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME);
-        ResolveInfo r = getPackageManager().resolveActivity(i, PackageManager.MATCH_DEFAULT_ONLY);
-        return r != null && getPackageName().equals(r.activityInfo.packageName);
+        RoleManager rm = getSystemService(RoleManager.class);
+        return rm != null && rm.isRoleHeld(RoleManager.ROLE_HOME);
     }
 }
