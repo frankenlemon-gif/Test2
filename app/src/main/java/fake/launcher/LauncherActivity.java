@@ -5,6 +5,7 @@ import android.app.KeyguardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.ApplicationInfo;
 import android.content.pm.LauncherActivityInfo;
 import android.content.pm.LauncherApps;
 import android.graphics.Color;
@@ -82,13 +83,21 @@ public class LauncherActivity extends Activity {
             LauncherActivityInfo info = apps.get(position);
             PopupMenu popup = new PopupMenu(this, view);
             popup.getMenu().add(0, 1, 0, "App info");
-            popup.getMenu().add(0, 2, 1, "Uninstall");
+
+            ApplicationInfo appInfo = info.getApplicationInfo();
+            boolean isSystem = (appInfo.flags & ApplicationInfo.FLAG_SYSTEM) != 0;
+            boolean isUpdatedSystem = (appInfo.flags & ApplicationInfo.FLAG_UPDATED_SYSTEM_APP) != 0;
+
+            if (!isSystem || isUpdatedSystem) {
+                popup.getMenu().add(0, 2, 1, "Uninstall");
+            }
+
             popup.setOnMenuItemClickListener(item -> {
                 if (item.getItemId() == 1) {
                     launcherApps.startAppDetailsActivity(info.getComponentName(), info.getUser(), null, null);
                     return true;
                 } else if (item.getItemId() == 2) {
-                    String pkg = info.getApplicationInfo().packageName;
+                    String pkg = appInfo.packageName;
                     startActivity(new Intent(Intent.ACTION_UNINSTALL_PACKAGE, 
                             android.net.Uri.parse("package:" + pkg)));
                     return true;
