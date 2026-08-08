@@ -46,43 +46,11 @@ public class LauncherActivity extends Activity {
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT));
 
-        // 1. Создаем подложку
-        Button bgButton = new Button(this);
-        bgButton.setLayoutParams(new ViewGroup.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.MATCH_PARENT));
-        bgButton.setBackgroundColor(Color.TRANSPARENT);
-        
-        // ВАЖНО: Убираем дефолтный elevation кнопки, чтобы Z-индекс не перекрывал GridView
-        bgButton.setElevation(0f);
-        bgButton.setTranslationZ(0f);
-
-        bgButton.setOnClickListener(v -> {});
-        bgButton.setOnLongClickListener(v -> {
-            startActivity(new Intent(this, SettingsActivity.class));
-            return true;
-        });
-
-        // 2. Создаем GridView поверх
-        gridView = new GridView(this) {
-            @Override
-            public boolean onTouchEvent(MotionEvent ev) {
-                int position = pointToPosition((int) ev.getX(), (int) ev.getY());
-                if (position == AdapterView.INVALID_POSITION) {
-                    return false; // Пропускаем касание в пустоту на bgButton
-                }
-                return super.onTouchEvent(ev);
-            }
-        };
-
+        // 1. Сначала создаем GridView с кнопками приложений
+        gridView = new GridView(this);
         gridView.setLayoutParams(new ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT));
-        
-        // Принудительно задаем GridView больший Z-индекс, если нужно
-        gridView.setElevation(1f);
-        gridView.setTranslationZ(1f);
-
         gridView.setNumColumns(4);
         gridView.setBackgroundColor(Color.TRANSPARENT);
         gridView.setSelector(new ColorDrawable(Color.TRANSPARENT));
@@ -113,8 +81,41 @@ public class LauncherActivity extends Activity {
             return true;
         });
 
-        root.addView(bgButton);
+        // 2. Затем создаем полноэкранную кнопку поверх, которая программно обходит иконки приложений
+        Button bgButton = new Button(this) {
+            @Override
+            public boolean onTouchEvent(MotionEvent event) {
+                int x = (int) event.getX();
+                int y = (int) event.getY();
+                
+                // Проверяем, попало ли касание по иконке приложения в GridView
+                int position = gridView.pointToPosition(x, y);
+                if (position != AdapterView.INVALID_POSITION) {
+                    // Если попали на приложение — возвращаем false, пропуская касание вниз к GridView
+                    return false; 
+                }
+                
+                // Если пустое место — обрабатываем касание на этой кнопке
+                return super.onTouchEvent(event);
+            }
+        };
+
+        bgButton.setLayoutParams(new ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT));
+        bgButton.setBackgroundColor(Color.TRANSPARENT);
+        bgButton.setElevation(0f);
+        bgButton.setTranslationZ(0f);
+
+        bgButton.setOnClickListener(v -> {});
+        bgButton.setOnLongClickListener(v -> {
+            startActivity(new Intent(this, SettingsActivity.class));
+            return true;
+        });
+
+        // Добавляем сначала GridView, затем поверх него полноэкранную кнопку с обходом
         root.addView(gridView);
+        root.addView(bgButton);
         setContentView(root);
 
         callback = new LauncherApps.Callback() {
