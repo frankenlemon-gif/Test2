@@ -12,7 +12,6 @@ import android.content.pm.LauncherActivityInfo;
 import android.content.pm.LauncherApps;
 import android.net.Uri;
 import android.os.Bundle;
-import android.view.Gravity;
 import android.os.UserHandle;
 import android.os.UserManager;
 import android.preference.PreferenceManager;
@@ -108,31 +107,31 @@ public class SettingsActivity extends Activity {
         setContentView(root);
     }
 
-    private void showHideAppsMenu() {
+    private void showWallpaperMenu() {
         LinearLayout root = new LinearLayout(this);
         root.setOrientation(LinearLayout.VERTICAL);
         root.setPadding(0, finalPadding, 0, finalPadding);
         root.setClipToPadding(false);
 
-        ListView listView = new ListView(this);
-        listView.setLayoutParams(new LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT, 0, 1.0f));
-        listView.setAdapter(new SettingsAdapter());
-
-        Button saveButton = new Button(this);
-        saveButton.setText("Hide selected");
-        saveButton.setOnClickListener(v -> prefs.edit().putStringSet("hidden", hiddenApps).apply());
+        Button btnChoose = new Button(this);
+        btnChoose.setText("Choose from gallery");
+        btnChoose.setOnClickListener(v -> {
+            Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+            intent.addCategory(Intent.CATEGORY_OPENABLE);
+            intent.setType("image/*");
+            startActivityForResult(intent, 1001);
+        });
 
         Button backButton = new Button(this);
         backButton.setText("Back");
         backButton.setOnClickListener(v -> showMainMenu());
 
-        root.addView(listView);
-        root.addView(saveButton);
+        root.addView(btnChoose);
         root.addView(backButton);
 
         setContentView(root);
     }
+
 
        @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -160,19 +159,6 @@ public class SettingsActivity extends Activity {
                 }
             }
         }
-    }
-
-       @Override
-    protected void onResume() {
-        super.onResume();
-        getWindow().getDecorView().setSystemUiVisibility(
-			View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-			| View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-			| View.SYSTEM_UI_FLAG_FULLSCREEN
-			| View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-			| View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-			| View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-        );        
     }
 
     private class SettingsAdapter extends ArrayAdapter<LauncherActivityInfo> {
