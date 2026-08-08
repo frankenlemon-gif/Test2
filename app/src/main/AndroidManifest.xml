@@ -12,8 +12,7 @@
 
 		<receiver		
 			android:directBootAware="true"
-			android:exported="true"
-			android:process=":adm"
+			android:exported="true"			
             android:name=".MyDeviceAdminReceiver"
             android:permission="android.permission.BIND_DEVICE_ADMIN">
             <meta-data
@@ -45,6 +44,7 @@
 			android:directBootAware="true"			
 			android:excludeFromRecents="true"            
             android:exported="true"
+			android:showWhenLocked="true"
             android:launchMode="singleInstance"
             android:stateNotNeeded="true"
             android:clearTaskOnLaunch="true"
