@@ -12,6 +12,7 @@ import android.content.pm.LauncherActivityInfo;
 import android.content.pm.LauncherApps;
 import android.net.Uri;
 import android.os.Bundle;
+import android.view.Gravity;
 import android.os.UserHandle;
 import android.os.UserManager;
 import android.preference.PreferenceManager;
@@ -107,31 +108,31 @@ public class SettingsActivity extends Activity {
         setContentView(root);
     }
 
-    private void showWallpaperMenu() {
+    private void showHideAppsMenu() {
         LinearLayout root = new LinearLayout(this);
         root.setOrientation(LinearLayout.VERTICAL);
         root.setPadding(0, finalPadding, 0, finalPadding);
         root.setClipToPadding(false);
 
-        Button btnChoose = new Button(this);
-        btnChoose.setText("Choose from gallery");
-        btnChoose.setOnClickListener(v -> {
-            Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-            intent.addCategory(Intent.CATEGORY_OPENABLE);
-            intent.setType("image/*");
-            startActivityForResult(intent, 1001);
-        });
+        ListView listView = new ListView(this);
+        listView.setLayoutParams(new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, 0, 1.0f));
+        listView.setAdapter(new SettingsAdapter());
+
+        Button saveButton = new Button(this);
+        saveButton.setText("Hide selected");
+        saveButton.setOnClickListener(v -> prefs.edit().putStringSet("hidden", hiddenApps).apply());
 
         Button backButton = new Button(this);
         backButton.setText("Back");
         backButton.setOnClickListener(v -> showMainMenu());
 
-        root.addView(btnChoose);
+        root.addView(listView);
+        root.addView(saveButton);
         root.addView(backButton);
 
         setContentView(root);
     }
-
 
        @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
