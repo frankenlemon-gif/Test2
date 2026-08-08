@@ -1,19 +1,22 @@
 package fake.launcher;
 
 import android.app.Activity;
-import android.content.Intent;
+import android.content.Context;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
-import android.content.pm.ResolveInfo;
+import android.content.pm.LauncherActivityInfo;
+import android.content.pm.LauncherApps;
 import android.os.Bundle;
+import android.os.UserHandle;
+import android.os.UserManager;
 import android.preference.PreferenceManager;
-import android.view.Gravity;
+import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.ArrayAdapter;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -21,7 +24,7 @@ import java.util.Set;
 public class SettingsActivity extends Activity {
 
     private Set<String> hiddenApps;
-    private List<ResolveInfo> allApps;
+    private List<LauncherActivityInfo> allApps;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,9 +33,13 @@ public class SettingsActivity extends Activity {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         hiddenApps = new HashSet<>(prefs.getStringSet("hidden", new HashSet<>()));
 
-        Intent mainIntent = new Intent(Intent.ACTION_MAIN, null);
-        mainIntent.addCategory(Intent.CATEGORY_LAUNCHER);
-        allApps = getPackageManager().queryIntentActivities(mainIntent, 0);
+        LauncherApps launcherApps = (LauncherApps) getSystemService(Context.LAUNCHER_APPS_SERVICE);
+        UserManager userManager = (UserManager) getSystemService(Context.USER_SERVICE);
+
+        allApps = new ArrayList<>();
+        for (UserHandle user : userManager.getUserProfiles()) {
+            allApps.addAll(launcherApps.getActivityList(null, user));
+        }
 
         LinearLayout root = new LinearLayout(this);
         root.setOrientation(LinearLayout.VERTICAL);
@@ -40,7 +47,7 @@ public class SettingsActivity extends Activity {
         ListView listView = new ListView(this);
         listView.setLayoutParams(new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, 0, 1.0f));
-        
+
         Button saveButton = new Button(this);
         saveButton.setText("Hide selected");
         saveButton.setOnClickListener(v -> {
@@ -49,24 +56,24 @@ public class SettingsActivity extends Activity {
         });
 
         listView.setAdapter(new SettingsAdapter());
-        
+
         root.addView(listView);
         root.addView(saveButton);
         setContentView(root);
     }
 
-    private class SettingsAdapter extends ArrayAdapter<ResolveInfo> {
+    private class SettingsAdapter extends ArrayAdapter<LauncherActivityInfo> {
         public SettingsAdapter() {
             super(SettingsActivity.this, android.R.layout.simple_list_item_multiple_choice, allApps);
         }
 
         @Override
-        public android.view.View getView(int position, android.view.View convertView, ViewGroup parent) {
+        public View getView(int position, View convertView, ViewGroup parent) {
             CheckBox checkBox = new CheckBox(SettingsActivity.this);
-            ResolveInfo info = getItem(position);
-            String pkg = info.activityInfo.packageName;
+            LauncherActivityInfo info = getItem(position);
+            String pkg = info.getApplicationInfo().packageName;
 
-            checkBox.setText(info.loadLabel(getPackageManager()));
+            checkBox.setText(info.getLabel());
             checkBox.setChecked(hiddenApps.contains(pkg));
             checkBox.setOnClickListener(v -> {
                 if (checkBox.isChecked()) hiddenApps.add(pkg);
