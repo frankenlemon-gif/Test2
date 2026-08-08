@@ -1,12 +1,15 @@
 package fake.launcher;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.WallpaperManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.LauncherActivityInfo;
 import android.content.pm.LauncherApps;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.UserHandle;
@@ -58,6 +61,9 @@ public class SettingsActivity extends Activity {
         root.setOrientation(LinearLayout.VERTICAL);
         root.setPadding(0, finalPadding, 0, finalPadding);
         root.setClipToPadding(false);
+        root.setLayoutParams(new ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT));
 
         Button btnHideApps = new Button(this);
         btnHideApps.setText("Hide apps");
@@ -83,6 +89,9 @@ public class SettingsActivity extends Activity {
         root.setOrientation(LinearLayout.VERTICAL);
         root.setPadding(0, finalPadding, 0, finalPadding);
         root.setClipToPadding(false);
+        root.setLayoutParams(new ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT));
 
         ListView listView = new ListView(this);
         listView.setLayoutParams(new LinearLayout.LayoutParams(
@@ -109,9 +118,12 @@ public class SettingsActivity extends Activity {
         root.setOrientation(LinearLayout.VERTICAL);
         root.setPadding(0, finalPadding, 0, finalPadding);
         root.setClipToPadding(false);
+        root.setLayoutParams(new ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT));
 
         Button btnChoose = new Button(this);
-        btnChoose.setText("Choose from gallery");
+        btnChoose.setText("Select wallpaper");
         btnChoose.setOnClickListener(v -> {
             Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
             intent.addCategory(Intent.CATEGORY_OPENABLE);
@@ -139,10 +151,20 @@ public class SettingsActivity extends Activity {
                     WallpaperManager wallpaperManager = WallpaperManager.getInstance(this);
                     InputStream inputStream = getContentResolver().openInputStream(uri);
                     if (inputStream != null) {
-                        wallpaperManager.setStream(inputStream);
+                        Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
                         inputStream.close();
+                        if (bitmap != null) {
+                            wallpaperManager.setBitmap(bitmap, null, true, 
+                                    WallpaperManager.FLAG_SYSTEM | WallpaperManager.FLAG_LOCK);
+                        }
                     }
-                } catch (Exception ignored) {}
+                } catch (Exception e) {
+                    new AlertDialog.Builder(this)
+                            .setTitle("Error")
+                            .setMessage(e.getMessage())
+                            .setPositiveButton("OK", null)
+                            .show();
+                }
             }
         }
     }
