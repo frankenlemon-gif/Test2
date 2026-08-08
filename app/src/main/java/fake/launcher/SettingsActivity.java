@@ -1,6 +1,7 @@
 package fake.launcher;
 
 import android.app.Activity;
+import android.app.KeyguardManager;
 import android.app.WallpaperManager;
 import android.app.AlertDialog;
 import android.content.Context;
@@ -176,6 +177,13 @@ public class SettingsActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
+        
+        KeyguardManager keyguardManager = (KeyguardManager) getSystemService(KEYGUARD_SERVICE);
+        if (keyguardManager != null && keyguardManager.isKeyguardLocked()) {
+            finish();
+            return;
+        }
+
         getWindow().getDecorView().setSystemUiVisibility(
             View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
             | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
