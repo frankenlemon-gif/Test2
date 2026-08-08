@@ -149,12 +149,15 @@ public class LauncherActivity extends Activity {
     private void loadApps() {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         Set<String> hidden = prefs.getStringSet("hidden", new HashSet<>());
+        String myPackage = getPackageName(); // Получаем ID текущего пакета
         apps = new ArrayList<>();
         
         List<LauncherActivityInfo> list = launcherApps.getActivityList(null, android.os.Process.myUserHandle());
         if (list != null) {
             for (LauncherActivityInfo info : list) {
-                if (!hidden.contains(info.getApplicationInfo().packageName)) {
+                String pkg = info.getApplicationInfo().packageName;
+                // Исключаем скрытые приложения И само себя
+                if (!hidden.contains(pkg) && !pkg.equals(myPackage)) {
                     apps.add(info);
                 }
             }
