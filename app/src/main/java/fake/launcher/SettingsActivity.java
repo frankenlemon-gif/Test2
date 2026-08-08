@@ -60,7 +60,6 @@ public class SettingsActivity extends Activity {
     private void showMainMenu() {
         LinearLayout root = new LinearLayout(this);
         root.setOrientation(LinearLayout.VERTICAL);
-        // Центрируем содержимое по центру экрана (горизонтально и вертикально)
         root.setGravity(Gravity.CENTER);
         root.setLayoutParams(new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, 
