@@ -1,4 +1,4 @@
-package com.example.mylauncher;
+package fake.launcher;
 
 import android.app.Activity;
 import android.app.role.RoleManager;
@@ -9,7 +9,7 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-public class LauncherProxyActivity extends Activity {
+public class EntryActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
