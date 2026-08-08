@@ -155,10 +155,6 @@ public class LauncherActivity extends Activity {
         if (km != null && km.isKeyguardLocked()) {
             View swipeView = new View(this);
             swipeView.setBackgroundColor(Color.TRANSPARENT);
-            
-            float density = getResources().getDisplayMetrics().density;
-            final int SWIPE_THRESHOLD = (int) (40 * density);
-
             swipeView.setOnTouchListener(new View.OnTouchListener() {
                 float startY;
                 @Override
@@ -167,25 +163,8 @@ public class LauncherActivity extends Activity {
                         startY = event.getY();
                         return true;
                     } else if (event.getAction() == MotionEvent.ACTION_UP) {
-                        if (startY - event.getY() > SWIPE_THRESHOLD) {
-                            
-                            // Снимаем флаг отображения поверх локскрина для фокуса клавиатуры
-                            setShowWhenLocked(false);
-
-                            // Запрашиваем снятие блокировки
-                            km.requestDismissKeyguard(LauncherActivity.this, new KeyguardManager.KeyguardDismissCallback() {
-                                @Override
-                                public void onDismissCancelled() {
-                                    super.onDismissCancelled();
-                                    // Возвращаем флаг, если юзер нажал "Назад"
-                                    setShowWhenLocked(true);
-                                }
-                                
-                                @Override
-                                public void onDismissSucceeded() {
-                                    super.onDismissSucceeded();
-                                }
-                            });
+                        if (startY - event.getY() > 150) {
+                            km.requestDismissKeyguard(LauncherActivity.this, null);
                         }
                         return true;
                     }
