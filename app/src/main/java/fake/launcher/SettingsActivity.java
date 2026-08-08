@@ -112,9 +112,13 @@ public class SettingsActivity extends Activity {
         setContentView(root);
     }
 
-    private void showWallpaperMenu() {
+       private void showWallpaperMenu() {
         LinearLayout root = new LinearLayout(this);
         root.setOrientation(LinearLayout.VERTICAL);
+        root.setGravity(Gravity.CENTER);
+        root.setLayoutParams(new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, 
+                ViewGroup.LayoutParams.MATCH_PARENT));
         root.setPadding(0, finalPadding, 0, finalPadding);
         root.setClipToPadding(false);
 
@@ -135,7 +139,7 @@ public class SettingsActivity extends Activity {
         root.addView(backButton);
 
         setContentView(root);
-    }
+    } 
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
