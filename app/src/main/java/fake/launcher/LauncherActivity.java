@@ -11,11 +11,10 @@ import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.view.Gravity;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.BaseAdapter;
+import android.widget.Button;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -32,7 +31,6 @@ public class LauncherActivity extends Activity {
     private LauncherApps launcherApps;
     private List<LauncherActivityInfo> apps;
     private LauncherApps.Callback callback;
-    private float touchX, touchY;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,6 +45,17 @@ public class LauncherActivity extends Activity {
         root.setOrientation(LinearLayout.VERTICAL);
         root.setBackgroundColor(Color.TRANSPARENT);
 
+        Button bgButton = new Button(this);
+        bgButton.setLayoutParams(new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT));
+        bgButton.setBackgroundColor(Color.TRANSPARENT);
+        bgButton.setOnClickListener(v -> {});
+        bgButton.setOnLongClickListener(v -> {
+            startActivity(new Intent(this, SettingsActivity.class));
+            return true;
+        });
+
         gridView = new GridView(this);
         gridView.setLayoutParams(new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
@@ -54,23 +63,6 @@ public class LauncherActivity extends Activity {
         gridView.setNumColumns(4);
         gridView.setBackgroundColor(Color.TRANSPARENT);
         gridView.setSelector(new ColorDrawable(Color.TRANSPARENT));
-
-        gridView.setOnTouchListener((v, event) -> {
-            if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                touchX = event.getX();
-                touchY = event.getY();
-            }
-            return false;
-        });
-
-        gridView.setOnLongClickListener(v -> {
-            int position = gridView.pointToPosition((int) touchX, (int) touchY);
-            if (position == AdapterView.INVALID_POSITION) {
-                startActivity(new Intent(this, SettingsActivity.class));
-                return true;
-            }
-            return false;
-        });
 
         gridView.setOnItemClickListener((parent, view, position, id) -> {
             LauncherActivityInfo info = apps.get(position);
@@ -98,7 +90,8 @@ public class LauncherActivity extends Activity {
             return true;
         });
 
-        root.addView(gridView);
+        bgButton.addView(gridView);
+        root.addView(bgButton);
         setContentView(root);
 
         callback = new LauncherApps.Callback() {
