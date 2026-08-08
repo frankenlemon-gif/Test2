@@ -183,6 +183,7 @@ public class LauncherActivity extends Activity {
     protected void onPause() {
         super.onPause();
         if (wasLockedAndFinished) {
+			wasLockedAndFinished = false;
             setShowWhenLocked(false);
             finish();
         }
