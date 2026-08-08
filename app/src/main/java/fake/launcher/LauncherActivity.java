@@ -138,8 +138,6 @@ public class LauncherActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
-        getWindow().addFlags(WindowManager.LayoutParams.FLAG_SECURE);
-		getWindow().getDecorView().setKeepScreenOn(true);
         getWindow().getDecorView().setSystemUiVisibility(
 			View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
 			| View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
