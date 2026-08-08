@@ -8,8 +8,6 @@ import android.content.pm.LauncherActivityInfo;
 import android.content.pm.LauncherApps;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.os.UserHandle;
-import android.os.UserManager;
 import android.preference.PreferenceManager;
 import android.view.Gravity;
 import android.view.View;
@@ -52,15 +50,15 @@ public class LauncherActivity extends Activity {
 
         callback = new LauncherApps.Callback() {
             @Override
-            public void onPackageAdded(String packageName, UserHandle user) { loadApps(); }
+            public void onPackageAdded(String packageName, android.os.UserHandle user) { loadApps(); }
             @Override
-            public void onPackageRemoved(String packageName, UserHandle user) { loadApps(); }
+            public void onPackageRemoved(String packageName, android.os.UserHandle user) { loadApps(); }
             @Override
-            public void onPackageChanged(String packageName, UserHandle user) { loadApps(); }
+            public void onPackageChanged(String packageName, android.os.UserHandle user) { loadApps(); }
             @Override
-            public void onPackagesAvailable(String[] packageNames, UserHandle user, boolean replacing) { loadApps(); }
+            public void onPackagesAvailable(String[] packageNames, android.os.UserHandle user, boolean replacing) { loadApps(); }
             @Override
-            public void onPackagesUnavailable(String[] packageNames, UserHandle user, boolean replacing) { loadApps(); }
+            public void onPackagesUnavailable(String[] packageNames, android.os.UserHandle user, boolean replacing) { loadApps(); }
         };
 
         launcherApps.registerCallback(callback);
@@ -83,10 +81,9 @@ public class LauncherActivity extends Activity {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         Set<String> hidden = prefs.getStringSet("hidden", new HashSet<>());
         apps = new ArrayList<>();
-        UserManager um = (UserManager) getSystemService(Context.USER_SERVICE);
-
-        for (UserHandle user : um.getUserProfiles()) {
-            List<LauncherActivityInfo> list = launcherApps.getActivityList(null, user);
+        
+        List<LauncherActivityInfo> list = launcherApps.getActivityList(null, android.os.Process.myUserHandle());
+        if (list != null) {
             for (LauncherActivityInfo info : list) {
                 if (!hidden.contains(info.getApplicationInfo().packageName)) {
                     apps.add(info);
@@ -106,14 +103,16 @@ public class LauncherActivity extends Activity {
             LinearLayout layout = new LinearLayout(LauncherActivity.this);
             layout.setOrientation(LinearLayout.VERTICAL);
             layout.setGravity(Gravity.CENTER);
+            layout.setPadding(16, 16, 16, 16);
             
             ImageView icon = new ImageView(LauncherActivity.this);
-            icon.setLayoutParams(new LinearLayout.LayoutParams(150, 150));
+            icon.setLayoutParams(new LinearLayout.LayoutParams(140, 140));
             icon.setImageDrawable(apps.get(position).getIcon(0));
 
             TextView text = new TextView(LauncherActivity.this);
             text.setText(apps.get(position).getLabel());
             text.setTextColor(Color.WHITE);
+            text.setSingleLine(true);
             
             layout.addView(icon);
             layout.addView(text);
