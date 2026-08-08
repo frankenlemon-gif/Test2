@@ -76,7 +76,7 @@ public class SettingsActivity extends Activity {
         btnWallpaper.setOnClickListener(v -> showWallpaperMenu());
 
         Button btnBack = new Button(this);
-        btnBack.setText("Back");
+        btnBack.setText("Home");
         btnBack.setOnClickListener(v -> finish());
 
         root.addView(btnHideApps);
