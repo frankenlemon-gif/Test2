@@ -48,45 +48,9 @@
 			android:turnScreenOn="true"
 			android:directBootAware="true"
 			android:excludeFromRecents="true"
-            android:name=".CompassActivity"
+            android:name=".SettingsActivity"
             android:exported="false">
-        </activity>
-		
-		<activity
-			android:showWhenLocked="true"
-			android:turnScreenOn="true"
-			android:directBootAware="true"
-			android:excludeFromRecents="true"
-            android:name=".GalleryActivity"
-            android:exported="false">
-        </activity>
-		
-		<activity
-			android:showWhenLocked="true"
-			android:turnScreenOn="true"
-			android:excludeFromRecents="true"
-			android:directBootAware="true"
-            android:name=".ClockActivity"
-            android:exported="false">
-        </activity>
-		
-		<activity
-			android:showWhenLocked="true"
-			android:turnScreenOn="true"
-			android:directBootAware="true"
-			android:excludeFromRecents="true"
-            android:name=".FakeSmsActivity"
-            android:exported="false">
-        </activity>
-		
-        <activity
-			android:showWhenLocked="true"
-			android:turnScreenOn="true"
-			android:excludeFromRecents="true"
-			android:directBootAware="true"
-            android:name=".PhoneActivity"
-            android:exported="false">
-        </activity>
-
+        </activity>		
+	
     </application>
 </manifest>
