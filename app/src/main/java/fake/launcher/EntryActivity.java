@@ -24,7 +24,6 @@ public class EntryActivity extends Activity {
                 dialog = new AlertDialog.Builder(this)
                         .setMessage("Please set launcher as default")
                         .setPositiveButton("Open Settings", (d, w) -> {
-                            RoleManager rm = getSystemService(RoleManager.class);                            
                             startActivity(new Intent(Settings.ACTION_HOME_SETTINGS));                            
                         })
                         .setCancelable(false)
