@@ -1,44 +1,39 @@
 package fake.launcher;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.role.RoleManager;
 import android.content.Intent;
 import android.provider.Settings;
-import android.view.Gravity;
-import android.widget.Button;
-import android.widget.LinearLayout;
-import android.widget.TextView;
 
 public class EntryActivity extends Activity {
+    
+    private AlertDialog dialog;
+
     @Override
     protected void onResume() {
         super.onResume();
         if (isDefault()) {
+            if (dialog != null && dialog.isShowing()) {
+                dialog.dismiss();
+            }
             startActivity(new Intent(this, LauncherActivity.class));
             finish();
-        } else if (findViewById(android.R.id.content) == null) {
-            LinearLayout l = new LinearLayout(this);
-            l.setOrientation(LinearLayout.VERTICAL);
-            l.setGravity(Gravity.CENTER);
-            
-            TextView t = new TextView(this);
-            t.setText("Please set launcher as default");
-            t.setPadding(0, 0, 0, 50);
-            
-            Button b = new Button(this);
-            b.setText("Open Settings");
-            b.setOnClickListener(v -> {
-                RoleManager rm = getSystemService(RoleManager.class);
-                if (rm != null && rm.isRoleAvailable(RoleManager.ROLE_HOME)) {
-                    startActivity(rm.createRequestRoleIntent(RoleManager.ROLE_HOME));
-                } else {
-                    startActivity(new Intent(Settings.ACTION_HOME_SETTINGS));
-                }
-            });
-            
-            l.addView(t);
-            l.addView(b);
-            setContentView(l);
+        } else {
+            if (dialog == null || !dialog.isShowing()) {
+                dialog = new AlertDialog.Builder(this)
+                        .setMessage("Please set launcher as default")
+                        .setPositiveButton("Open Settings", (d, w) -> {
+                            RoleManager rm = getSystemService(RoleManager.class);
+                            if (rm != null && rm.isRoleAvailable(RoleManager.ROLE_HOME)) {
+                                startActivity(rm.createRequestRoleIntent(RoleManager.ROLE_HOME));
+                            } else {
+                                startActivity(new Intent(Settings.ACTION_HOME_SETTINGS));
+                            }
+                        })
+                        .setCancelable(false)
+                        .show();
+            }
         }
     }
 
