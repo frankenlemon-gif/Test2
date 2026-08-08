@@ -86,6 +86,8 @@ public class LauncherActivity extends Activity {
         });
 
         Button bgButton = new Button(this) {
+            private long downTime = 0;
+
             @Override
             public boolean onTouchEvent(MotionEvent event) {
                 int x = (int) event.getX();
@@ -95,8 +97,20 @@ public class LauncherActivity extends Activity {
                 if (position != AdapterView.INVALID_POSITION) {
                     return false; 
                 }
+
+                if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                    downTime = System.currentTimeMillis();
+                }
                 
                 return super.onTouchEvent(event);
+            }
+
+            @Override
+            public boolean performLongClick() {
+                if (System.currentTimeMillis() - downTime >= 1200) {
+                    return super.performLongClick();
+                }
+                return false;
             }
         };
 
