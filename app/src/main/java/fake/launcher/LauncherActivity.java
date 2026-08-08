@@ -11,8 +11,10 @@ import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.view.Gravity;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
@@ -30,6 +32,7 @@ public class LauncherActivity extends Activity {
     private LauncherApps launcherApps;
     private List<LauncherActivityInfo> apps;
     private LauncherApps.Callback callback;
+    private float touchX, touchY;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,9 +55,21 @@ public class LauncherActivity extends Activity {
         gridView.setBackgroundColor(Color.TRANSPARENT);
         gridView.setSelector(new ColorDrawable(Color.TRANSPARENT));
 
+        gridView.setOnTouchListener((v, event) -> {
+            if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                touchX = event.getX();
+                touchY = event.getY();
+            }
+            return false;
+        });
+
         gridView.setOnLongClickListener(v -> {
-            startActivity(new Intent(this, SettingsActivity.class));
-            return true;
+            int position = gridView.pointToPosition((int) touchX, (int) touchY);
+            if (position == AdapterView.INVALID_POSITION) {
+                startActivity(new Intent(this, SettingsActivity.class));
+                return true;
+            }
+            return false;
         });
 
         gridView.setOnItemClickListener((parent, view, position, id) -> {
