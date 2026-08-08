@@ -97,15 +97,15 @@ public class ClockActivity extends Activity {
         
         labelTextView = new TextView(this);
         labelTextView.setTextSize(24);
-        labelTextView.setTextColor(0xFF000000); // Черный цвет
-        labelTextView.setTypeface(null, android.graphics.Typeface.BOLD); // Жирный шрифт
+        labelTextView.setTextColor(0xFF000000); 
+        labelTextView.setTypeface(null, android.graphics.Typeface.BOLD);
         labelTextView.setGravity(Gravity.CENTER);
 
         
         timeTextView = new TextView(this);
         timeTextView.setTextSize(48);
-        timeTextView.setTextColor(0xFF000000); // Черный цвет
-        timeTextView.setTypeface(null, android.graphics.Typeface.BOLD); // Жирный шрифт
+        timeTextView.setTextColor(0xFF000000);
+        timeTextView.setTypeface(null, android.graphics.Typeface.BOLD);
         timeTextView.setGravity(Gravity.CENTER);
 
         
