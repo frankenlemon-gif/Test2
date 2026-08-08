@@ -1,351 +1,104 @@
 package fake.launcher;
 
-import android.app.*;
-import android.app.admin.*;
-import android.content.*;
-import android.graphics.*;
-import android.graphics.drawable.*;
-import android.os.*;
-import android.view.*;
-import android.widget.*;
-import java.util.*;
+import android.app.Activity;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
+import android.graphics.Color;
+import android.os.Bundle;
+import android.preference.PreferenceManager;
+import android.view.Gravity;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.BaseAdapter;
+import android.widget.GridView;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public class LauncherActivity extends Activity {
 
-    private FrameLayout root;
-    private boolean isRecentScreen = false;
-    private int navBarHeight = 120; 
-	
-	
-	private void showCameraErrorMessage() {
-		String message = "ru".equalsIgnoreCase(Locale.getDefault().getLanguage())
-			? "В приложении \"Камера\" произошла Ошибка"
-			: "In the \"Camera\" application an Error occurred";
-
-		String buttonText = "ru".equalsIgnoreCase(Locale.getDefault().getLanguage())
-			? "✕  закрыть приложение"
-			: "✕  close application";
-
-		AlertDialog.Builder builder = new AlertDialog.Builder(this);
-		builder.setMessage(message)
-			.setNegativeButton(buttonText, null)
-			.setCancelable(false);
-
-		AlertDialog dialog = builder.create();
-
-		Window window = dialog.getWindow();
-		if (window != null) {
-			window.setGravity(Gravity.CENTER);
-		}
-
-		dialog.show();
-
-		
-		TextView messageView = dialog.findViewById(android.R.id.message);
-		if (messageView != null) {
-			messageView.setGravity(Gravity.CENTER);
-			messageView.setTypeface(Typeface.DEFAULT_BOLD); // Жирный шрифт
-		}
-
-		Button negativeButton = dialog.getButton(DialogInterface.BUTTON_NEGATIVE);
-		if (negativeButton != null) {
-			negativeButton.setTypeface(Typeface.DEFAULT);
-		}
-	}	
-	
-    @Override
-    protected void onResume() {
-        super.onResume();		
-		
-        getWindow().getDecorView().setSystemUiVisibility(
-			View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-			| View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-			| View.SYSTEM_UI_FLAG_FULLSCREEN
-			| View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-			| View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-			| View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-        );
-
-        ComponentName adminComponent =
-			new ComponentName(this, MyDeviceAdminReceiver.class);
-
-        DevicePolicyManager dpm =
-			(DevicePolicyManager) getSystemService(Context.DEVICE_POLICY_SERVICE);
-
-        if (!dpm.isAdminActive(adminComponent)) {
-            Intent intent =
-				new Intent(DevicePolicyManager.ACTION_ADD_DEVICE_ADMIN);
-
-            intent.putExtra(
-				DevicePolicyManager.EXTRA_DEVICE_ADMIN,
-				adminComponent
-            );
-
-            String explanation = "ru".equalsIgnoreCase(Locale.getDefault().getLanguage())
-                ? "Это приложение для запуска фейкового главного экрана при вводе неверного пароля на экране блокировки, чтобы злоумышленник думал, что это и есть ваши данные (но там их нет).\nВы можете использовать это приложение когда вас заставляют показать содержимое телефона. В таком случае просто вводите неправильный пароль (4 или более символов) и приложение покажет 'пустышку'.\nРазрешение администратора требуется для отслеживания неверных попыток ввода пароля."
-                : "This is an app for launching a fake home screen after an incorrect lock screen password is entered, so an attacker thinks this is your real data (but there are none).\nYou can use this app when someone is trying to duress you into showing the contents of your phone. In this situation you just enter the wrong password (4 or more characters) and app show a 'decoy'.\nDevice Administrator permission is required to track incorrect password entry attempts.";
-
-            intent.putExtra(
-				DevicePolicyManager.EXTRA_ADD_EXPLANATION,
-				explanation
-            );
-
-            startActivity(intent);
-        }
-		
-    }
+    private GridView gridView;
+    private PackageManager packageManager;
+    private List<ResolveInfo> apps;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        
-        navBarHeight = (int) (56 * getResources().getDisplayMetrics().density);
+        packageManager = getPackageManager();
+        gridView = new GridView(this);
+        gridView.setNumColumns(4);
+        gridView.setBackgroundColor(Color.TRANSPARENT);
+        gridView.setOnLongClickListener(v -> {
+            startActivity(new Intent(this, SettingsActivity.class));
+            return true;
+        });
 
-        root = new FrameLayout(this);
-        root.setBackgroundColor(Color.WHITE);
-        setContentView(root);
+        gridView.setOnItemClickListener((parent, view, position, id) -> {
+            ResolveInfo info = apps.get(position);
+            Intent intent = packageManager.getLaunchIntentForPackage(info.activityInfo.packageName);
+            if (intent != null) startActivity(intent);
+        });
 
-        showMainScreen();
+        setContentView(gridView);
     }
-
-    
 
     @Override
-    public void onBackPressed() {
-        if (isRecentScreen) {
-            showMainScreen();
-        } else {
-            super.onBackPressed();
+    protected void onResume() {
+        super.onResume();
+        loadApps();
+    }
+
+    private void loadApps() {
+        Intent mainIntent = new Intent(Intent.ACTION_MAIN, null);
+        mainIntent.addCategory(Intent.CATEGORY_LAUNCHER);
+        List<ResolveInfo> allApps = packageManager.queryIntentActivities(mainIntent, 0);
+
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        Set<String> hidden = prefs.getStringSet("hidden", new HashSet<>());
+
+        apps = new ArrayList<>();
+        for (ResolveInfo info : allApps) {
+            if (!hidden.contains(info.activityInfo.packageName)) {
+                apps.add(info);
+            }
         }
+        gridView.setAdapter(new AppAdapter());
     }
 
-    
+    private class AppAdapter extends BaseAdapter {
+        @Override
+        public int getCount() { return apps.size(); }
+        @Override
+        public Object getItem(int position) { return apps.get(position); }
+        @Override
+        public long getItemId(int position) { return position; }
 
-	private void showMainScreen() {
-		isRecentScreen = false;
-		root.removeAllViews();
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            LinearLayout layout = new LinearLayout(LauncherActivity.this);
+            layout.setOrientation(LinearLayout.VERTICAL);
+            layout.setGravity(Gravity.CENTER);
+            layout.setPadding(20, 20, 20, 20);
 
-		FrameLayout contentContainer = new FrameLayout(this);
-		FrameLayout.LayoutParams contentParams = new FrameLayout.LayoutParams(
-			FrameLayout.LayoutParams.MATCH_PARENT,
-			FrameLayout.LayoutParams.MATCH_PARENT
-		);
-		root.addView(contentContainer, contentParams);
+            ImageView icon = new ImageView(LauncherActivity.this);
+            icon.setLayoutParams(new LinearLayout.LayoutParams(150, 150));
+            icon.setImageDrawable(apps.get(position).loadIcon(packageManager));
 
-		
-		int screenWidth = getResources().getDisplayMetrics().widthPixels;
-		int padding = dp(16);
-		int iconSize = dp(72);
-		int iconMargin = dp(4);
+            TextView text = new TextView(LauncherActivity.this);
+            text.setText(apps.get(position).loadLabel(packageManager));
+            text.setTextColor(Color.WHITE);
+            text.setGravity(Gravity.CENTER);
 
-		
-		int iconsPerRow = Math.max(1, (screenWidth - 2 * padding) / (iconSize + 2 * iconMargin));
-
-		
-		LinearLayout mainLayout = new LinearLayout(this);
-		mainLayout.setOrientation(LinearLayout.VERTICAL);
-		mainLayout.setPadding(padding, padding, padding, padding + navBarHeight);
-
-		String[] icons;
-		Class<?>[] activities;		
-		
-			icons = new String[]{"📞", "💬", "🕗", "🖼️", "🧭", "📷"};
-			activities = new Class<?>[]{
-				PhoneActivity.class,
-				FakeSmsActivity.class,
-				ClockActivity.class,
-				GalleryActivity.class,
-				CompassActivity.class,
-				null
-			};		
-		
-		for (int i = 0; i < icons.length; i += iconsPerRow) {
-			LinearLayout row = new LinearLayout(this);
-			row.setOrientation(LinearLayout.HORIZONTAL);
-
-			
-			int iconsInThisRow = Math.min(iconsPerRow, icons.length - i);
-
-			for (int j = 0; j < iconsInThisRow; j++) {
-				int index = i + j;
-				TextView icon = createIcon(icons[index]);
-				final Class<?> activityClass = activities[index];
-
-				icon.setOnClickListener(new View.OnClickListener() {
-						@Override
-						public void onClick(View v) {
-							if (activityClass == null) {
-								showCameraErrorMessage();
-							} else {
-								startActivity(new Intent(LauncherActivity.this, activityClass));
-							}
-						}
-					});
-					
-				row.addView(icon);
-			}
-
-			mainLayout.addView(row);
-		}
-
-		FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(
-			FrameLayout.LayoutParams.MATCH_PARENT,
-			FrameLayout.LayoutParams.MATCH_PARENT
-		);
-		contentContainer.addView(mainLayout, layoutParams);
-
-		addNavigationBar();
-	}
-    private void addNavigationBar() {
-        
-        final LinearLayout navBar = new LinearLayout(this);
-        navBar.setOrientation(LinearLayout.HORIZONTAL);
-        navBar.setBackgroundColor(Color.parseColor("#E61A1A1A"));
-
-        final FrameLayout.LayoutParams navParams = new FrameLayout.LayoutParams(
-            FrameLayout.LayoutParams.MATCH_PARENT,
-            navBarHeight
-        );
-        navParams.gravity = Gravity.BOTTOM;
-
-        root.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-				@Override
-				public void onGlobalLayout() {
-					root.getViewTreeObserver().removeOnGlobalLayoutListener(this);			
-					Rect visibleRect = new Rect();
-					root.getGlobalVisibleRect(visibleRect);
-					navParams.gravity = Gravity.BOTTOM;
-					navBar.setLayoutParams(navParams);
-				}
-			});
-
-        root.addView(navBar, navParams);
-
-        
-        Button backButton = createNavButton("<");
-        backButton.setOnClickListener(new View.OnClickListener() {
-				@Override
-				public void onClick(View v) {
-					
-					if (isRecentScreen) {
-						showMainScreen();
-					}
-				}
-			});
-
-        
-        Button homeButton = createNavButton("□");
-        homeButton.setOnClickListener(new View.OnClickListener() {
-				@Override
-				public void onClick(View v) {
-					
-			
-					if (isRecentScreen) {
-						showMainScreen();
-					}
-				}
-			});
-
-        
-        Button recentButton = createNavButton("|||");
-        recentButton.setOnClickListener(new View.OnClickListener() {
-				@Override
-				public void onClick(View v) {
-					if (isRecentScreen) {
-						
-						
-						showMainScreen();
-					} else {
-						
-						showRecentAppsScreen();
-					}
-				}
-			});
-
-        
-        LinearLayout.LayoutParams buttonParams = new LinearLayout.LayoutParams(
-            0,
-            LinearLayout.LayoutParams.MATCH_PARENT
-        );
-        buttonParams.weight = 1;
-
-        navBar.addView(backButton, buttonParams);
-        navBar.addView(homeButton, buttonParams);
-        navBar.addView(recentButton, buttonParams);
-    }
-
-    private Button createNavButton(String text) {
-        Button button = new Button(this);
-        button.setText(text);
-        button.setTextSize(24);
-        button.setTextColor(Color.WHITE);
-        button.setBackgroundColor(Color.TRANSPARENT);
-        button.setAllCaps(false);
-        button.setPadding(0, 0, 0, 0);
-        return button;
-    }
-
-    
-
-    private void showRecentAppsScreen() {
-        isRecentScreen = true;
-        root.removeAllViews();
-
-        
-        FrameLayout recentContainer = new FrameLayout(this);
-        recentContainer.setBackgroundColor(Color.parseColor("#1A1A1A"));
-        FrameLayout.LayoutParams recentParams = new FrameLayout.LayoutParams(
-            FrameLayout.LayoutParams.MATCH_PARENT,
-            FrameLayout.LayoutParams.MATCH_PARENT
-        );
-        root.addView(recentContainer, recentParams);
-
-        
-        boolean isRussian = "ru".equalsIgnoreCase(Locale.getDefault().getLanguage());
-
-        
-        TextView noRecentText = new TextView(this);
-        noRecentText.setText(isRussian ? "Нет последних приложений" : "No recent applications");
-        noRecentText.setTextSize(20);
-        noRecentText.setTextColor(Color.parseColor("#CCCCCC"));
-        noRecentText.setGravity(Gravity.CENTER);
-
-        FrameLayout.LayoutParams textParams = new FrameLayout.LayoutParams(
-            FrameLayout.LayoutParams.WRAP_CONTENT,
-            FrameLayout.LayoutParams.WRAP_CONTENT
-        );
-        textParams.gravity = Gravity.CENTER;
-
-        recentContainer.addView(noRecentText, textParams);
-
-        
-        addNavigationBar();
-    }
-
-    private TextView createIcon(String emoji) {
-        TextView tv = new TextView(this);
-        tv.setText(emoji);
-        tv.setTextSize(40);
-        tv.setGravity(Gravity.CENTER);
-
-        int size = dp(72);
-        LinearLayout.LayoutParams lp =
-			new LinearLayout.LayoutParams(size, size);
-        lp.setMargins(dp(4), dp(4), dp(4), dp(4));
-        tv.setLayoutParams(lp);
-
-        GradientDrawable bg = new GradientDrawable();
-        bg.setColor(0xFFEDEDED);
-        bg.setStroke(dp(2), 0xFF444444);
-        bg.setCornerRadius(0);
-
-        tv.setBackground(bg);
-
-        return tv;
-    }
-
-    private int dp(int value) {
-        return (int) (value * getResources().getDisplayMetrics().density);
+            layout.addView(icon);
+            layout.addView(text);
+            return layout;
+        }
     }
 }
